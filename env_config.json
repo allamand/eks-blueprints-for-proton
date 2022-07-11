@@ -1,7 +1,7 @@
 {
   "*": {
-    "role": "arn:aws:iam::111111111111:role/REPLACE_ME",
+    "role": "arn:aws:iam::382076407153:role/GitHubAppRunner-Terraform",
     "region": "us-west-2",
-    "state_bucket":"REPLACE_ME"
+    "state_bucket":"aws-proton-terraform-bucket-382076407153"
   }
 }
