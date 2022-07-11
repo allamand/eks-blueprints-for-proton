@@ -4,8 +4,8 @@ locals {
   cluster_version = "1.21"
   #terraform_version = "Terraform v1.0.1"
 
-  vpc_cidr      = "10.0.0.0/16"
-  azs           = slice(data.aws_availability_zones.available.names, 0, 3)
+  vpc_cidr = "10.0.0.0/16"
+  azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
   node_group_name = "managed-ondemand"
 
@@ -33,11 +33,11 @@ locals {
   # ARGOCD ECSDEMO APPLICATION
   #---------------------------------------------------------------
 
-   ecsdemo_application = {
+  ecsdemo_application = {
     path               = "multi-repo/argo-app-of-apps/dev"
     repo_url           = "https://github.com/seb-demo/eks-blueprints-workloads.git"
     add_on_application = false
-  }   
+  }
 
 
   tags = {

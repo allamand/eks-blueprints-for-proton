@@ -41,7 +41,7 @@ provider "kubectl" {
 module "eks_blueprints" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.2.1"
 
-  cluster_name    = local.name
+  cluster_name = local.name
 
   # EKS Cluster VPC and Subnet mandatory config
   vpc_id             = module.vpc.vpc_id
@@ -51,11 +51,11 @@ module "eks_blueprints" {
   cluster_version = local.cluster_version
 
   # List of map_roles
-  map_roles          = [
+  map_roles = [
     {
-      rolearn  ="arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.environment.inputs.eks_admin_role_name}"     # The ARN of the IAM role
-      username = "ops-role"                                           # The user name within Kubernetes to map to the IAM role
-      groups   = ["system:masters"]                                   # A list of groups within Kubernetes to which the role is mapped; Checkout K8s Role and Rolebindings
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.environment.inputs.eks_admin_role_name}" # The ARN of the IAM role
+      username = "ops-role"                                                                                                       # The user name within Kubernetes to map to the IAM role
+      groups   = ["system:masters"]                                                                                               # A list of groups within Kubernetes to which the role is mapped; Checkout K8s Role and Rolebindings
     }
   ]
 
@@ -81,13 +81,13 @@ module "eks_blueprints" {
     team-riker = {
       "labels" = {
         "elbv2.k8s.aws/pod-readiness-gate-inject" = "enabled",
-        "appName"     = "riker-team-app",
-        "projectName" = "project-riker",
-        "environment" = "dev",
-        "domain"      = "example",
-        "uuid"        = "example",
-        "billingCode" = "example",
-        "branch"      = "example"
+        "appName"                                 = "riker-team-app",
+        "projectName"                             = "project-riker",
+        "environment"                             = "dev",
+        "domain"                                  = "example",
+        "uuid"                                    = "example",
+        "billingCode"                             = "example",
+        "branch"                                  = "example"
       }
       "quota" = {
         "requests.cpu"    = "10000m",
@@ -100,16 +100,16 @@ module "eks_blueprints" {
       }
       ## Manifests Example: we can specify a directory with kubernetes manifests that can be automatically applied in the team-riker namespace.
       # manifests_dir = "./manifests-team-red"
-      users         = [data.aws_caller_identity.current.arn]
+      users = [data.aws_caller_identity.current.arn]
     }
 
 
     ecsdemo-frontend = {
       "labels" = {
         "elbv2.k8s.aws/pod-readiness-gate-inject" = "enabled",
-        "appName"     = "ecsdemo-frontend-app",
-        "projectName" = "ecsdemo-frontend",
-        "environment" = "dev",
+        "appName"                                 = "ecsdemo-frontend-app",
+        "projectName"                             = "ecsdemo-frontend",
+        "environment"                             = "dev",
       }
       #don't use quotas here cause ecsdemo app does not have request/limits 
       "quota" = {
@@ -123,7 +123,7 @@ module "eks_blueprints" {
       }
       ## Manifests Example: we can specify a directory with kubernetes manifests that can be automatically applied in the team-riker namespace.
       # manifests_dir = "./manifests-team-red"
-      users         = [data.aws_caller_identity.current.arn]
+      users = [data.aws_caller_identity.current.arn]
     }
   }
 
@@ -132,14 +132,14 @@ module "eks_blueprints" {
 }
 
 module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
+  source = "terraform-aws-modules/vpc/aws"
   #version = "v3.2.0"
   version = "~> 3.0"
 
   name = local.name
   cidr = local.vpc_cidr
 
-  azs  = local.azs
+  azs             = local.azs
   public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
   private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 10)]
 
@@ -154,7 +154,7 @@ module "vpc" {
   manage_default_route_table    = true
   default_route_table_tags      = { Name = "${local.name}-default" }
   manage_default_security_group = true
-  default_security_group_tags   = { Name = "${local.name}-default" }  
+  default_security_group_tags   = { Name = "${local.name}-default" }
 
   public_subnet_tags = {
     "kubernetes.io/cluster/${local.name}" = "shared"
@@ -166,7 +166,7 @@ module "vpc" {
     "kubernetes.io/role/internal-elb"     = "1"
   }
 
-    tags = local.tags
+  tags = local.tags
 }
 
 module "aws_controllers" {
@@ -217,9 +217,9 @@ module "kubernetes-addons" {
   # https://aws-ia.github.io/terraform-aws-eks-blueprints/add-ons/
   #---------------------------------------------------------------
 
-  enable_cert_manager                 = var.environment.inputs.cert_manager
-  enable_metrics_server               = var.environment.inputs.metrics_server
-  enable_vpa                          = var.environment.inputs.vpa
+  enable_cert_manager   = var.environment.inputs.cert_manager
+  enable_metrics_server = var.environment.inputs.metrics_server
+  enable_vpa            = var.environment.inputs.vpa
 
   #depends_on = [module.eks_blueprints.managed_node_groups,module.aws_controllers]
   #depends_on = [module.eks_blueprints.managed_node_groups]
@@ -349,8 +349,8 @@ data "kubectl_path_documents" "karpenter_provisioners" {
 }
 
 resource "kubectl_manifest" "karpenter_provisioner" {
- for_each  = toset(data.kubectl_path_documents.karpenter_provisioners.documents)
- yaml_body = each.value
+  for_each  = toset(data.kubectl_path_documents.karpenter_provisioners.documents)
+  yaml_body = each.value
 
- #depends_on = [module.aws_controllers]
+  #depends_on = [module.aws_controllers]
 }
