@@ -1,3 +1,18 @@
+provider "aws" {
+  region = var.aws_region
+  alias  = "default"
+  default_tags {
+    tags = {
+      "proton:environment" = var.environment.name
+    }
+  }
+}
+
+variable "aws_region" {
+  type    = string
+  default = "us-east-1"
+}
+
 terraform {
   required_version = ">= 1.0.1"
 
