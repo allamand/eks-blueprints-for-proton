@@ -80,7 +80,8 @@ module "eks_blueprints" {
     admin = {
       users = [
         data.aws_caller_identity.current.arn,
-        "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:user/${var.environment.inputs.user}"
+        "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:user/${var.environment.inputs.user}",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.environment.inputs.eks_admin_role_name}"
       ]
     }
   }
