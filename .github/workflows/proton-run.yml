@@ -315,7 +315,7 @@ jobs:
         run: terraform apply -auto-approve -destroy -target="module.kubernetes-addons" -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"
 
       - name: Terraform Destroy (aws controllers)
-        id: tf_destroy_cluster
+        id: tf_destroy_controllers
         run: terraform apply -auto-approve -destroy -target="module.aws_controllers" -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"
 
       - name: Terraform Destroy (Cluster)
