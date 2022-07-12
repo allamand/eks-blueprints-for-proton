@@ -2,7 +2,7 @@ apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
   name: default
-  
+
 spec:
   requirements:
     # - key: 'node.kubernetes.io/instance-type'
@@ -27,7 +27,7 @@ spec:
     tags:
       karpenter.sh/cluster_name: ${eks-cluster-id}
       karpenter.sh/provisioner: default
-  ttlSecondsAfterEmpty: 0
+  ttlSecondsAfterEmpty: 60
   limits:
     resources:
       cpu: '200'
