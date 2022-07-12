@@ -1,5 +1,9 @@
 /*
-This file is no longer managed by AWS Proton. The associated resource has been deleted in Proton.
+This file is managed by AWS Proton. Any changes made directly to this file will be overwritten the next time AWS Proton performs an update.
+
+To manage this resource, see AWS Proton Resource: arn:aws:proton:eu-west-1:382076407153:environment/eks-cohort-delete-demo
+
+If the resource is no longer accessible within AWS Proton, it may have been deleted and may require manual cleanup.
 */
 
 locals {
@@ -19,7 +23,7 @@ locals {
 
   addon_application = {
     path               = "chart"
-    repo_url           = "https://github.com/seb-demo/eks-blueprints-add-ons.git"
+    repo_url           = "${var.environment.inputs.addon_repo_url}"
     add_on_application = true
   }
 
@@ -28,8 +32,8 @@ locals {
   #---------------------------------------------------------------
 
   workload_application = {
-    path               = "envs/dev"
-    repo_url           = "https://github.com/seb-demo/eks-blueprints-workloads.git"
+    path               = "${var.environment.inputs.workload_repo_path}"
+    repo_url           = "${var.environment.inputs.workload_repo_url}"
     add_on_application = false
   }
 
