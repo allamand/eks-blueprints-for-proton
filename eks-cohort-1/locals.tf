@@ -23,7 +23,7 @@ locals {
 
   addon_application = {
     path               = "chart"
-    repo_url           = "https://github.com/seb-demo/eks-blueprints-add-ons.git"
+    repo_url           = "${var.environment.inputs.addon_repo_url}"
     add_on_application = true
   }
 
@@ -32,8 +32,8 @@ locals {
   #---------------------------------------------------------------
 
   workload_application = {
-    path               = "envs/dev"
-    repo_url           = "https://github.com/seb-demo/eks-blueprints-workloads.git"
+    path               = "${var.environment.inputs.workload_repo_path}"
+    repo_url           = "${var.environment.inputs.workload_repo_url}"
     add_on_application = false
   }
 
