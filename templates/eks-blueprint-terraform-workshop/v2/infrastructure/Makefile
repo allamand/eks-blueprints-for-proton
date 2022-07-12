@@ -1,0 +1,4 @@
+
+
+format:
+	terraform fmt
