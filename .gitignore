@@ -1,3 +1,5 @@
 .idea
 *.swp
 .terraform
+kube-config.yaml
+.envrc

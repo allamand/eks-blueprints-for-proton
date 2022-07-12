@@ -12,6 +12,7 @@ schema:
         - user
         - eks_admin_role_name
         - kubernetes_version
+        - addon_repo_url
       properties:
         cluster_name:
           title: 'Cluster name'
@@ -29,6 +30,23 @@ schema:
           title: 'EKS Admin Additional Role Name'
           type: string
           description: 'IAM Role for cluster access'
+
+        addon_repo_url:
+          title: 'GitHub Addons repo'
+          type: string
+          description: 'GitHub Repo for managing Kuberbetes Addons'
+          default: "https://github.com/seb-demo/eks-blueprints-add-ons.git"   
+
+        workload_repo_url:
+          title: 'GitHub ArgoCD Workloads repo'
+          type: string
+          description: 'GitHub Repo for managing Kuberbetes ArgoCD Workloads'
+          default: "https://github.com/seb-demo/eks-blueprints-workloads.git"
+
+          title: 'GitHub ArgoCD Workloads repo path'
+          type: string
+          description: 'GitHub path in the Repo for managing Kuberbetes ArgoCD Workloads'
+          default: "envs/dev"                   
 
         kubernetes_version:
           title: 'Kubernetes version'
