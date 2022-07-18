@@ -1,6 +1,6 @@
 {
-  "deploymentId" : "d990d3fb-995a-4ca6-892e-12f581a7b37b",
-  "isResourceDeleted" : false,
+  "deploymentId" : "<proton-resource-deleted>",
+  "isResourceDeleted" : true,
   "resourceMetadata" : {
     "arn" : "arn:aws:proton:eu-west-1:382076407153:environment/eks-cohort-destroy",
     "templateArn" : "arn:aws:proton:eu-west-1:382076407153:environment-template/eks-blueprint-terraform-workshop",
