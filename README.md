@@ -20,7 +20,7 @@ Once you are done, go to the Proton console and switch to the `Settings/Reposito
 
 For Terraform to be able to deploy (or "vend") EKS clusters, it needs to assume a proper IAM role. In addition, since for our solution we will use Terraform open source, we also need an S3 bucket to save the Terraform state. To do this please follow the instructions [at this page](./scripts/README.md).
 
-Retrieve the role ARN and the S3 bucket name from the output of the IaC above and update the [env-config.json](./env_config.json) file in your GitHub repository. Make sure to update the `region` parameter to the region you are using.
+Retrieve the role ARN and the S3 bucket name from the output of the IaC above and update the [env_config.json](./env_config.json) file in your GitHub repository. Make sure to update the `region` parameter to the region you are using.
 
 > Remember to commit and push these changes to your GitHub repository now
 
@@ -229,3 +229,16 @@ When you are done with the test you may want to delete the cluster to avoid incu
 
 
  
+#### Troubleshooting
+
+The Terraform state used when deploying from Github Action is store in s3 on AWS.
+
+In case there are some kind of issues in the deployment and you would like to replay this locally, you can do it by just pointing your terraform to your existing s3 terraform state bucket specify in your `env_config.json` file:
+
+```bash
+export TERRAFORM_BUCKET=$(cat ../env_config.json| jq ".[].state_bucket" -r)
+export CLUSTER_NAME=eks-cohort-delete-demo
+terraform init -backend-config="bucket=$TERRAFORM_BUCKET" -backend-config="key=$CLUSTER_NAME/terraform.tfstate" -backend-config="region=$AWS_REGION"
+```
+
+Then you can work with terraform using it's real state.
