@@ -152,6 +152,11 @@ module "vpc" {
   tags = local.tags
 }
 
+#resource "aws_route53_zone" "main" {
+data "aws_route53_zone" "main" {  
+   name = var.environment.input.eks_cluster_domain
+}
+
 module "aws_controllers" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.8.0/modules/kubernetes-addons"
 
@@ -167,7 +172,17 @@ module "aws_controllers" {
   enable_karpenter                    = var.environment.inputs.karpenter
   enable_aws_for_fluentbit            = var.environment.inputs.aws_for_fluentbit
   enable_external_dns                 = var.environment.inputs.external_dns
-
+  external_dns_helm_config = {
+    # values = {
+    #   zoneIdFilters = data.aws_route53_zone.main.zone_id
+    # }
+    set = [
+      {
+        name  = "zoneIdFilters"
+        value = data.aws_route53_zone.main.zone_id
+      }
+    ]
+  }
 
 }
 
