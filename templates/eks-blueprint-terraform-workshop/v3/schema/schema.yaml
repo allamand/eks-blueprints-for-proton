@@ -20,27 +20,28 @@ schema:
         cluster_name:
           title: 'Cluster name'
           type: string
-          default: demo1
+          default: 'demo1'
+
         vpc_cidr:
           title: 'VPC CIDR'
           type: string
           pattern: ([0-9]{1,3}\.){3}[0-9]{1,3}($|/(16|24))
-          default: 10.0.0.0/16
+          default: '10.0.0.0/16'
         iam_platform_user:
           title: 'iam_platform_user'
           type: string
           description: 'Additional IAM role to be admin in the cluster'
-          default: platform-user
+          default: 'platform-user'
         eks_admin_role_name:
           title: 'EKS Admin Additional Role Name'
           type: string
           description: 'IAM Role for cluster access'
-          default: demo3
+          default: 'demo3'
         eks_cluster_domain:
           title: 'Your cluster domain'
           type: string
           description: 'Domain name of you're route53 Hostedzone'          
-          default: demo.eks.demo3.allamand.com
+          default: 'demo.eks.demo3.allamand.com'
 
         addon_repo_url:
           title: 'GitHub Addons repo'
