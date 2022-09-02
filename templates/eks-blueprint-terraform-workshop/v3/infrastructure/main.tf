@@ -155,8 +155,8 @@ module "vpc" {
 module "aws_controllers" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.8.0/modules/kubernetes-addons"
 
-  eks_cluster_id = module.eks_blueprints.eks_cluster_id
-  eks_cluster_domain   = var.environment.inputs.eks_cluster_domain # for external-dns
+  eks_cluster_id     = module.eks_blueprints.eks_cluster_id
+  eks_cluster_domain = var.environment.inputs.eks_cluster_domain # for external-dns
 
   #---------------------------------------------------------------
   # Use AWS controllers separately

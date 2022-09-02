@@ -29,13 +29,13 @@ locals {
     add_on_application = false
     values = {
       spec = {
-        blueprint =  "terraform"
+        blueprint = "terraform"
         ingress = {
-          type = "alb"          
+          type = "alb"
           host = var.environment.inputs.eks_cluster_domain
         }
       }
-    }    
+    }
   }
 
   #---------------------------------------------------------------
@@ -48,13 +48,13 @@ locals {
     add_on_application = false
     values = {
       spec = {
-        blueprint =  "terraform"
+        blueprint = "terraform"
         ingress = {
-          type = "alb"          
+          type = "alb"
           host = var.environment.inputs.eks_cluster_domain
         }
       }
-    }        
+    }
   }
 
   tags = {
