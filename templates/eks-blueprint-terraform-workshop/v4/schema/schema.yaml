@@ -21,7 +21,7 @@ schema:
         cluster_name:
           title: 'Cluster name'
           type: string
-          default: 'demo1'
+          default: 'proton-blue'
 
         vpc_cidr:
           title: 'VPC CIDR'
@@ -42,12 +42,12 @@ schema:
           title: 'Route53 domain'
           type: string
           description: 'Domain name for route53 Hostedzone'
-          default: 'demo.eks.demo3.allamand.com'
+          default: 'proton-blue.eks.demo3.allamand.com'
         acm_certificate_domain:
           title: 'Certificat Manager domain'
           type: string
           description: 'nom de domaine pour le certificat dans Certificat Manager'
-          default: '*.demo.eks.demo3.allamand.com'
+          default: '*.proton-blue.eks.demo3.allamand.com'
 
         addon_repo_url:
           title: 'GitHub Addons repo'
