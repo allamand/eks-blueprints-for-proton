@@ -9,7 +9,7 @@ provider "aws" {
 }
 
 variable "aws_region" {
-  type    = string
+  type = string
 }
 
 terraform {
