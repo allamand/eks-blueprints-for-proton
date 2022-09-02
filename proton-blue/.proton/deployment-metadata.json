@@ -1,0 +1,10 @@
+{
+  "deploymentId" : "98caadfa-b87d-452e-95cc-47418ee730db",
+  "isResourceDeleted" : false,
+  "resourceMetadata" : {
+    "arn" : "arn:aws:proton:eu-west-1:382076407153:environment/proton-blue",
+    "templateArn" : "arn:aws:proton:eu-west-1:382076407153:environment-template/eks-blueprint-terraform-workshop",
+    "templateMajorVersion" : "4",
+    "templateMinorVersion" : "4"
+  }
+}
