@@ -12,6 +12,7 @@ schema:
         - iam_platform_user
         - eks_admin_role_name
         - eks_cluster_domain
+        - acm_certificate_domain
         - kubernetes_version
         - addon_repo_url
         - workload_repo_url
@@ -42,6 +43,11 @@ schema:
           type: string
           description: 'Domain name for route53 Hostedzone'
           default: 'demo.eks.demo3.allamand.com'
+        acm_certificate_domain:
+          title: 'Certificat Manager domain'
+          type: string
+          description: 'nom de domaine pour le certificat dans Certificat Manager'
+          default: '*.demo.eks.demo3.allamand.com'
 
         addon_repo_url:
           title: 'GitHub Addons repo'

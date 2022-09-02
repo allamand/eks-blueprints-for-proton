@@ -21,7 +21,7 @@ data "aws_eks_cluster_auth" "this" {
 }
 
 data "aws_acm_certificate" "issued" {
-  domain   = var.acm_certificate_domain
+  domain   = var.environment.inputs.acm_certificate_domain
   statuses = ["ISSUED"]
 }
 
