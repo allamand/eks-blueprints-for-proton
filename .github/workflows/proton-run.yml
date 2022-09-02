@@ -213,12 +213,12 @@ jobs:
       - name: Terraform Apply EKS
         id: tf_apply_eks
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -target="module.eks_blueprints" -auto-approve -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"   
+        run: terraform apply -target="module.eks_blueprints" -auto-approve -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"
 
       - name: Terraform Apply EKS controllers
         id: tf_apply_eks_controllers
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -target="module.aws_controllers" -auto-approve -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"                
+        run: terraform apply -target="module.aws_controllers" -auto-approve -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"
 
       - name: Terraform Apply All
         id: tf_apply
@@ -328,15 +328,15 @@ jobs:
 
       - name: Terraform Destroy (Add-ons)
         id: tf_destroy_addons
-        run: terraform apply -auto-approve -destroy -target="module.kubernetes-addons" -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"
+        run: terraform apply -auto-approve -destroy -target="module.kubernetes_addons" -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"
 
       - name: Terraform Destroy (aws controllers)
         id: tf_destroy_controllers
         run: terraform apply -auto-approve -destroy -target="module.aws_controllers" -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"
 
-      # - name: Terraform Destroy (Cluster)
-      #   id: tf_destroy_cluster
-      #   run: terraform apply -auto-approve -destroy -target="module.eks_blueprints" -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"
+      - name: Terraform Destroy (Cluster)
+        id: tf_destroy_cluster
+        run: terraform apply -auto-approve -destroy -target="module.eks_blueprints" -var="aws_region=${{ needs.get-deployment-data.outputs.target_region }}"
 
       - name: Terraform Destroy (Everything)
         id: tf_destroy_everything
