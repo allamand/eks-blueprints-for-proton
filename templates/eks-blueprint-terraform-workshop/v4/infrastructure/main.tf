@@ -174,12 +174,16 @@ module "aws_controllers" {
   enable_external_dns                 = var.environment.inputs.external_dns
   external_dns_helm_config = {
     # values = {
-    #   zoneIdFilters = data.aws_route53_zone.main.zone_id
+    #   zoneIdFilters = data.aws_route53_zone.main.zone_id,
     # }
     set = [
       {
-        name  = "zoneIdFilters"
+        name  = "zoneIdFilters[0]"
         value = data.aws_route53_zone.main.zone_id
+      },
+      {
+        name  = "logLevel"
+        value = "debug"
       }
     ]
   }
