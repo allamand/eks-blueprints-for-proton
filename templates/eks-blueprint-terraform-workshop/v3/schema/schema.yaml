@@ -38,9 +38,9 @@ schema:
           description: 'IAM Role for cluster access'
           default: 'demo3'
         eks_cluster_domain:
-          title: 'Your cluster domain'
+          title: 'Route53 domain'
           type: string
-          description: 'Domain name of you're route53 Hostedzone'          
+          description: 'Domain name for route53 Hostedzone'
           default: 'demo.eks.demo3.allamand.com'
 
         addon_repo_url:
@@ -93,4 +93,4 @@ schema:
         external_dns:
           title: 'Enable External DNS'
           type: boolean
-          default: true          
+          default: true
