@@ -153,8 +153,8 @@ module "vpc" {
 }
 
 #resource "aws_route53_zone" "main" {
-data "aws_route53_zone" "main" {  
-   name = var.environment.input.eks_cluster_domain
+data "aws_route53_zone" "main" {
+  name = var.environment.input.eks_cluster_domain
 }
 
 module "aws_controllers" {
