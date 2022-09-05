@@ -1,3 +1,11 @@
+/*
+This file is managed by AWS Proton. Any changes made directly to this file will be overwritten the next time AWS Proton performs an update.
+
+To manage this resource, see AWS Proton Resource: arn:aws:proton:eu-west-1:382076407153:environment/proton-green
+
+If the resource is no longer accessible within AWS Proton, it may have been deleted and may require manual cleanup.
+*/
+
 locals {
   name            = basename(path.cwd)
   region          = data.aws_region.current.name
@@ -7,8 +15,7 @@ locals {
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
-  node_group_name            = "managed-ondemand"
-  argocd_secret_manager_name = "argo-admin-secret"
+  node_group_name = "managed-ondemand"
 
   #---------------------------------------------------------------
   # ARGOCD ADD-ON APPLICATION
@@ -30,9 +37,8 @@ locals {
     add_on_application = false
     values = {
       spec = {
-        blueprint                = "terraform"
-        clusterName              = local.name
-        karpenterInstanceProfile = "${local.name}-${local.node_group_name}"
+        blueprint   = "terraform"
+        clusterName = local.name
         ingress = {
           type = "alb"
           host = var.environment.inputs.eks_cluster_domain

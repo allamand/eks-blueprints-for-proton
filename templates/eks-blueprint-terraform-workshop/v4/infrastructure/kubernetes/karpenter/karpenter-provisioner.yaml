@@ -1,7 +1,7 @@
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
-  name: default
+  name: burnham
 
 spec:
   requirements:
@@ -14,16 +14,9 @@ spec:
     - key: karpenter.sh/capacity-type
       operator: In
       values: ['on-demand', 'spot']
-  provider:
-    apiVersion: extensions.karpenter.sh/v1alpha1
-    kind: AWS
-    instanceProfile: ${iam-instance-profile-id}
-    securityGroupSelector:
-      #kubernetes.io/cluster/demo: '*'
-      aws:eks:cluster-name: '${eks-cluster-id}' # Choose only security groups of nodes
-    subnetSelector:
-      kubernetes.io/cluster/${eks-cluster-id}: '*'
-      kubernetes.io/role/internal-elb: '1' # to select only private subnets
+  providerRef:
+    name: karpenter-bottlerocket
+    #name: karpenter-default      
     tags:
       karpenter.sh/cluster_name: ${eks-cluster-id}
       karpenter.sh/provisioner: default
