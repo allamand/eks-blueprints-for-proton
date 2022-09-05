@@ -165,7 +165,7 @@ module "aws_controllers" {
 
   #---------------------------------------------------------------
   # Use AWS controllers separately
-  # So that it can delete ressources it created from other addons or workloads
+  # So that it can delete ressources it created from other addons or workloads - PR
   #---------------------------------------------------------------
 
   enable_aws_load_balancer_controller = var.environment.inputs.aws_load_balancer_controller
