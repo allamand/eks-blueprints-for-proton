@@ -30,6 +30,7 @@ locals {
     values = {
       spec = {
         blueprint = "terraform"
+        clusterName = local.name
         ingress = {
           type = "alb"
           host = var.environment.inputs.eks_cluster_domain
@@ -49,6 +50,7 @@ locals {
     values = {
       spec = {
         blueprint = "terraform"
+        clusterName = local.name        
         ingress = {
           type = "alb"
           host = var.environment.inputs.eks_cluster_domain
