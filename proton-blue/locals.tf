@@ -37,7 +37,8 @@ locals {
     add_on_application = false
     values = {
       spec = {
-        blueprint = "terraform"
+        blueprint   = "terraform"
+        clusterName = local.name
         ingress = {
           type = "alb"
           host = var.environment.inputs.eks_cluster_domain
@@ -56,7 +57,8 @@ locals {
     add_on_application = false
     values = {
       spec = {
-        blueprint = "terraform"
+        blueprint   = "terraform"
+        clusterName = local.name
         ingress = {
           type = "alb"
           host = var.environment.inputs.eks_cluster_domain
