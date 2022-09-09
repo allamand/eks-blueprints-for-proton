@@ -33,6 +33,7 @@ Deploy
 terraform apply -target="module.vpc" -auto-approve -var="aws_region=$AWS_REGION"
 terraform apply -target="module.eks_blueprints" -auto-approve -var="aws_region=$AWS_REGION"
 terraform apply -target="module.kubernetes_addons" -auto-approve -var="aws_region=$AWS_REGION"
+terraform apply -auto-approve -var="aws_region=$AWS_REGION"
 ```
 
 ### Configuring Argo CLI

@@ -108,8 +108,8 @@ module "eks_blueprints" {
         "services"        = "10"
       }
       ## Manifests Example: we can specify a directory with kubernetes manifests that can be automatically applied in the team-riker namespace.
-      # manifests_dir = "./manifests-team-red"
-      users = [data.aws_caller_identity.current.arn]
+      manifests_dir = "./kubernetes/team-riker"
+      users         = [data.aws_caller_identity.current.arn]
     }
 
 

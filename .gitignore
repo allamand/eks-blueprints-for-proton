@@ -3,4 +3,5 @@
 .terraform
 kube-config.yaml
 .envrc
-.vscode/targets.log
+.vscode
+tmp

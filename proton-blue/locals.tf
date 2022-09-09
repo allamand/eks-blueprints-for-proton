@@ -15,7 +15,8 @@ locals {
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
-  node_group_name = "managed-ondemand"
+  node_group_name            = "managed-ondemand"
+  argocd_secret_manager_name = "argo-admin-secret"
 
   #---------------------------------------------------------------
   # ARGOCD ADD-ON APPLICATION
@@ -37,8 +38,9 @@ locals {
     add_on_application = false
     values = {
       spec = {
-        blueprint   = "terraform"
-        clusterName = local.name
+        blueprint                = "terraform"
+        clusterName              = local.name
+        karpenterInstanceProfile = "${local.name}-${local.node_group_name}"
         ingress = {
           type = "alb"
           host = var.environment.inputs.eks_cluster_domain

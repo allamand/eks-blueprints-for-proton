@@ -24,8 +24,3 @@ data "aws_acm_certificate" "issued" {
   domain   = var.environment.inputs.acm_certificate_domain
   statuses = ["ISSUED"]
 }
-
-# The TeamRole IAM role used when at AWS event
-#data "aws_iam_role" "team_event" {
-#  name = "TeamRole"
-#}
