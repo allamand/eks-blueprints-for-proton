@@ -15,6 +15,6 @@ variable "environment" {
 }
 
 variable "proton_tags" {
-  type = map(string)
+  type    = map(string)
   default = null
 }
