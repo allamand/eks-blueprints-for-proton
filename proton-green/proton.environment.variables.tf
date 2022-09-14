@@ -13,3 +13,8 @@ variable "environment" {
   })
   default = null
 }
+
+variable "proton_tags" {
+  type    = map(string)
+  default = null
+}

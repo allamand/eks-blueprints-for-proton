@@ -69,6 +69,32 @@ module "eks_blueprints" {
   }
 
   application_teams = {
+
+    team-burnham = {
+      "labels" = {
+        "elbv2.k8s.aws/pod-readiness-gate-inject" = "enabled",
+        "appName"                                 = "burnham-team-app",
+        "projectName"                             = "project-burnham",
+        "environment"                             = "dev",
+        "domain"                                  = "example",
+        "uuid"                                    = "example",
+        "billingCode"                             = "example",
+        "branch"                                  = "example"
+      }
+      "quota" = {
+        "requests.cpu"    = "10000m",
+        "requests.memory" = "20Gi",
+        "limits.cpu"      = "20000m",
+        "limits.memory"   = "50Gi",
+        "pods"            = "10",
+        "secrets"         = "10",
+        "services"        = "10"
+      }
+      ## Manifests Example: we can specify a directory with kubernetes manifests that can be automatically applied in the team-riker namespace.
+      manifests_dir = "./kubernetes/team-burnham"
+      users         = [data.aws_caller_identity.current.arn]
+    }
+
     team-riker = {
       "labels" = {
         "elbv2.k8s.aws/pod-readiness-gate-inject" = "enabled",
@@ -90,8 +116,8 @@ module "eks_blueprints" {
         "services"        = "10"
       }
       ## Manifests Example: we can specify a directory with kubernetes manifests that can be automatically applied in the team-riker namespace.
-      # manifests_dir = "./manifests-team-red"
-      users = [data.aws_caller_identity.current.arn]
+      manifests_dir = "./kubernetes/team-riker"
+      users         = [data.aws_caller_identity.current.arn]
     }
 
 
@@ -113,8 +139,50 @@ module "eks_blueprints" {
         "services"        = "10"
       }
       ## Manifests Example: we can specify a directory with kubernetes manifests that can be automatically applied in the team-riker namespace.
-      # manifests_dir = "./manifests-team-red"
-      users = [data.aws_caller_identity.current.arn]
+      manifests_dir = "./kubernetes/ecsdemo-frontend"
+      users         = [data.aws_caller_identity.current.arn]
+    }
+    ecsdemo-nodejs = {
+      "labels" = {
+        "elbv2.k8s.aws/pod-readiness-gate-inject" = "enabled",
+        "appName"                                 = "ecsdemo-nodejs-app",
+        "projectName"                             = "ecsdemo-nodejs",
+        "environment"                             = "dev",
+      }
+      #don't use quotas here cause ecsdemo app does not have request/limits 
+      "quota" = {
+        "requests.cpu"    = "10000m",
+        "requests.memory" = "20Gi",
+        "limits.cpu"      = "20000m",
+        "limits.memory"   = "50Gi",
+        "pods"            = "10",
+        "secrets"         = "10",
+        "services"        = "10"
+      }
+      ## Manifests Example: we can specify a directory with kubernetes manifests that can be automatically applied in the team-riker namespace.
+      manifests_dir = "./kubernetes/ecsdemo-nodejs"
+      users         = [data.aws_caller_identity.current.arn]
+    }
+    ecsdemo-crystal = {
+      "labels" = {
+        "elbv2.k8s.aws/pod-readiness-gate-inject" = "enabled",
+        "appName"                                 = "ecsdemo-crystal-app",
+        "projectName"                             = "ecsdemo-crystal",
+        "environment"                             = "dev",
+      }
+      #don't use quotas here cause ecsdemo app does not have request/limits 
+      "quota" = {
+        "requests.cpu"    = "10000m",
+        "requests.memory" = "20Gi",
+        "limits.cpu"      = "20000m",
+        "limits.memory"   = "50Gi",
+        "pods"            = "10",
+        "secrets"         = "10",
+        "services"        = "10"
+      }
+      ## Manifests Example: we can specify a directory with kubernetes manifests that can be automatically applied in the team-riker namespace.
+      manifests_dir = "./kubernetes/ecsdemo-crystal"
+      users         = [data.aws_caller_identity.current.arn]
     }
   }
 
@@ -165,15 +233,71 @@ data "aws_route53_zone" "main" {
   name = var.environment.inputs.eks_cluster_domain
 }
 
-module "aws_controllers" {
+
+#---------------------------------------------------------------
+# ArgoCD Admin Password credentials with Secrets Manager
+# Login to AWS Secrets manager with the same role as Terraform to extract the ArgoCD admin password with the secret name as "argocd"
+#---------------------------------------------------------------
+resource "random_password" "argocd" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+#tfsec:ignore:aws-ssm-secret-use-customer-key
+resource "aws_secretsmanager_secret" "arogcd" {
+  name                    = "${local.argocd_secret_manager_name}.${local.name}"
+  recovery_window_in_days = 0 # Set to zero for this example to force delete during Terraform destroy
+}
+
+resource "aws_secretsmanager_secret_version" "arogcd" {
+  secret_id     = aws_secretsmanager_secret.arogcd.id
+  secret_string = random_password.argocd.result
+}
+
+data "aws_secretsmanager_secret_version" "admin_password_version" {
+  secret_id = aws_secretsmanager_secret.arogcd.id
+
+  depends_on = [aws_secretsmanager_secret_version.arogcd]
+}
+
+# Add the following to the bottom of main.tf
+
+module "kubernetes_addons" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.8.0/modules/kubernetes-addons"
 
   eks_cluster_id     = module.eks_blueprints.eks_cluster_id
-  eks_cluster_domain = var.environment.inputs.eks_cluster_domain # for external-dns
+  eks_cluster_domain = var.environment.inputs.eks_cluster_domain # for external-dns  
 
   #---------------------------------------------------------------
-  # Use AWS controllers separately
-  # So that it can delete ressources it created from other addons or workloads - PR
+  # ARGO CD ADD-ON
+  #---------------------------------------------------------------
+
+  enable_argocd         = true
+  argocd_manage_add_ons = true # Indicates that ArgoCD is responsible for managing/deploying Add-ons.
+
+  argocd_applications = {
+    addons    = local.addon_application
+    workloads = local.workload_application
+    ecsdemo   = local.ecsdemo_application
+  }
+
+  # This example shows how to set default ArgoCD Admin Password using SecretsManager with Helm Chart set_sensitive values.
+  argocd_helm_config = {
+    set_sensitive = [
+      {
+        name  = "configs.secret.argocdServerAdminPassword"
+        value = bcrypt(data.aws_secretsmanager_secret_version.admin_password_version.secret_string)
+      }
+    ]
+  }
+  #argocd_helm_config = {
+  #  values = [templatefile("${path.module}/argocd-values.yaml", {})]
+  #}
+
+  #---------------------------------------------------------------
+  # ADD-ONS - You can add additional addons here
+  # https://aws-ia.github.io/terraform-aws-eks-blueprints/add-ons/
   #---------------------------------------------------------------
 
   enable_aws_load_balancer_controller = var.environment.inputs.aws_load_balancer_controller
@@ -195,38 +319,6 @@ module "aws_controllers" {
       }
     ]
   }
-
-}
-
-
-# Add the following to the bottom of main.tf
-
-module "kubernetes-addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.8.0/modules/kubernetes-addons"
-
-  eks_cluster_id = module.eks_blueprints.eks_cluster_id
-
-  #---------------------------------------------------------------
-  # ARGO CD ADD-ON
-  #---------------------------------------------------------------
-
-  enable_argocd         = true
-  argocd_manage_add_ons = true # Indicates that ArgoCD is responsible for managing/deploying Add-ons.
-
-  argocd_applications = {
-    addons    = local.addon_application
-    workloads = local.workload_application
-    ecsdemo   = local.ecsdemo_application
-  }
-
-  #argocd_helm_config = {
-  #  values = [templatefile("${path.module}/argocd-values.yaml", {})]
-  #}
-
-  #---------------------------------------------------------------
-  # ADD-ONS - You can add additional addons here
-  # https://aws-ia.github.io/terraform-aws-eks-blueprints/add-ons/
-  #---------------------------------------------------------------
 
   enable_cert_manager   = var.environment.inputs.cert_manager
   enable_metrics_server = var.environment.inputs.metrics_server
