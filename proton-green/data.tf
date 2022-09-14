@@ -1,9 +1,5 @@
 /*
-This file is managed by AWS Proton. Any changes made directly to this file will be overwritten the next time AWS Proton performs an update.
-
-To manage this resource, see AWS Proton Resource: arn:aws:proton:eu-west-1:382076407153:environment/proton-green
-
-If the resource is no longer accessible within AWS Proton, it may have been deleted and may require manual cleanup.
+This file is no longer managed by AWS Proton. The associated resource has been deleted in Proton.
 */
 
 # Partition (commercial, govCloud, etc) in which to deploy the solution
@@ -32,3 +28,8 @@ data "aws_acm_certificate" "issued" {
   domain   = var.environment.inputs.acm_certificate_domain
   statuses = ["ISSUED"]
 }
+
+# The TeamRole IAM role used when at AWS event
+#data "aws_iam_role" "team_event" {
+#  name = "TeamRole"
+#}
