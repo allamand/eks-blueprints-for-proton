@@ -41,7 +41,8 @@ terraform apply -auto-approve -var="aws_region=$AWS_REGION"
 ```bash
 export ARGO_SERVER=$(kubectl get svc -n argocd -l app.kubernetes.io/name=argocd-server -o name)
 echo $ARGO_SERVER
-export ARGO_PASSWORD=$(kubectl -n argocd get secret argocd-secret -o jsonpath="{.data.admin.password}" | base64 -d)
+#export ARGO_PASSWORD=$(kubectl -n argocd get secret argocd-secret -o jsonpath="{.data.admin.password}" | base64 -d)
+export ARGO_PASSWORD=$(aws secretsmanager get-secret-value --secret-id argo-admin-secret.proton-green --query SecretString --output text --region eu-west-1)
 echo $ARGO_PASSWORD
 ```
 
@@ -53,7 +54,7 @@ export ARGO_URL=argocd.proton-blue.eks.demo3.allamand.com
 export ARGO_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo $ARGO_PASSWORD
 #export ARGO_URL=localhost:8080
-argocd login $ARGO_URL --username admin --password $ARGO_PASSWORD
+argocd login --grpc-web $ARGO_URL --username admin --password $ARGO_PASSWORD
 ```
 
 Create a project in Argo
