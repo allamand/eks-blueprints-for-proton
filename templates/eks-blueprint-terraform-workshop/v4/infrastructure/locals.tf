@@ -35,7 +35,7 @@ locals {
         karpenterInstanceProfile = "${local.name}-${local.node_group_name}"
         ingress = {
           type = "alb"
-          host = var.environment.inputs.eks_cluster_domain
+          host = "${local.name}.${var.environment.inputs.eks_cluster_domain}"
         }
       }
     }
@@ -51,11 +51,12 @@ locals {
     add_on_application = false
     values = {
       spec = {
-        blueprint   = "terraform"
-        clusterName = local.name
+        blueprint                = "terraform"
+        clusterName              = local.name
+        karpenterInstanceProfile = "${local.name}-${local.node_group_name}"
         ingress = {
           type = "alb"
-          host = var.environment.inputs.eks_cluster_domain
+          host = "${local.name}.${var.environment.inputs.eks_cluster_domain}"
         }
       }
     }
