@@ -6,6 +6,11 @@ To manage this resource, see AWS Proton Resource: arn:aws:proton:eu-west-1:38207
 If the resource is no longer accessible within AWS Proton, it may have been deleted and may require manual cleanup.
 */
 
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value       = module.vpc.vpc_id
+}
+
 output "platform_teams_configure_kubectl" {
   description = "The command to use to configure the kubeconfig file to be used with kubectl."
   value = tomap({
@@ -56,10 +61,7 @@ output "enable_vpa" {
   value       = var.environment.inputs.vpa
 }
 
-output "vpc_id" {
-  description = "The ID of the VPC"
-  value       = module.vpc.vpc_id
-}
+
 
 output "configure_kubectl" {
   description = "Configure kubectl: make sure you're logged in with the correct AWS profile and run the following command to update your kubeconfig"
