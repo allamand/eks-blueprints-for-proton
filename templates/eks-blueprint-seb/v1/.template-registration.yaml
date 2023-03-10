@@ -1,0 +1,4 @@
+compatible_environments:
+  - Core Infra for EKS Blueprint:1
+supported_component_sources:
+  - DIRECTLY_DEFINED
