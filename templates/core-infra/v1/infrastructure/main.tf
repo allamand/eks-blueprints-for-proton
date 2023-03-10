@@ -5,16 +5,16 @@ provider "aws" {
 
 
 locals {
-  name   = "${var.environment.inputs.core_stack_name}"
+  name   = var.environment.inputs.core_stack_name
   region = var.aws_region
 
-  vpc_cidr       = "${var.environment.inputs.vpc_cidr}"
+  vpc_cidr       = var.environment.inputs.vpc_cidr
   num_of_subnets = min(length(data.aws_availability_zones.available.names), 3)
   azs            = slice(data.aws_availability_zones.available.names, 0, local.num_of_subnets)
 
-  argocd_secret_manager_name = "${var.environment.inputs.argocd_secret_manager_name_suffix}"
+  argocd_secret_manager_name = var.environment.inputs.argocd_secret_manager_name_suffix
 
-  hosted_zone_name   = "${var.environment.inputs.hosted_zone_name}"
+  hosted_zone_name = var.environment.inputs.hosted_zone_name
 
   tags = {
     Blueprint  = local.name
@@ -49,14 +49,14 @@ module "vpc" {
   default_security_group_tags   = { Name = "${local.name}-default" }
 
   public_subnet_tags = {
-    "kubernetes.io/cluster/${local.name}"  = "shared"    
+    "kubernetes.io/cluster/${local.name}"       = "shared"
     "kubernetes.io/cluster/${local.name}-blue"  = "shared"
     "kubernetes.io/cluster/${local.name}-green" = "shared"
     "kubernetes.io/role/elb"                    = "1"
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/${local.name}"  = "shared"    
+    "kubernetes.io/cluster/${local.name}"       = "shared"
     "kubernetes.io/cluster/${local.name}-blue"  = "shared"
     "kubernetes.io/cluster/${local.name}-green" = "shared"
     "kubernetes.io/role/internal-elb"           = "1"
