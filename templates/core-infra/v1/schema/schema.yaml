@@ -15,7 +15,7 @@ schema:
         core_stack_name:
           title: 'Core stack name'
           type: string
-          default: 'proton-blue'
+          default: 'proton'
         vpc_cidr:
           title: 'VPC CIDR'
           type: string
