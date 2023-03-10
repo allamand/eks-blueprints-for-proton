@@ -1,11 +1,11 @@
 schema:
   format:
     openapi: '3.0.0'
-  environment_input_type: 'EnvironmentInput'
+  service_input_type: 'ServiceInput'
   types:
-    EnvironmentInput:
+    ServiceInput:
       type: object
-      description: 'Input properties for eks environment.'
+      description: 'Input properties for eks service.'
       required:
         - suffix_stack_name
         - iam_platform_user
