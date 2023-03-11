@@ -124,8 +124,8 @@ jobs:
           if [[ $(jq -r --arg env $environment_name 'has($env)' env_config.json) = "true" ]]; then
             role_arn=$(jq -r --arg env $environment_name '.[$env]["role"]' env_config.json)
             target_region=$(jq -r --arg env $environment_name '.[$env]["region"]' env_config.json)
-            state_bucket=$(jq -r --arg env $environment_name '.[$env]["state_bucket"]' env_config.json)   
-          else     
+            state_bucket=$(jq -r --arg env $environment_name '.[$env]["state_bucket"]' env_config.json)
+          else
             if [[ $(jq -r --arg env $environment_name 'has("*")' env_config.json) = "true" ]]; then
               role_arn=$(jq -r --arg env $environment_name '.["*"]["role"]' env_config.json)
               target_region=$(jq -r --arg env $environment_name '.["*"]["region"]' env_config.json)
@@ -136,13 +136,13 @@ jobs:
             fi
           fi
 
-          echo "working_directory=$working_directory" >> $GITHUB_OUTPUT
+          echo "working_directory=$working_directory" >> $GITHUB_OUTPUT 
           echo "environment=$environment_name" >> $GITHUB_OUTPUT
 
           echo "role_arn=$role_arn" >> $GITHUB_OUTPUT
           echo "target_region=$target_region" >> $GITHUB_OUTPUT
           echo "state_bucket=$state_bucket" >> $GITHUB_OUTPUT
-
+        
   terraform:
     name: 'Terraform'
     needs: get-deployment-data
@@ -156,7 +156,7 @@ jobs:
     defaults:
       run:
         working-directory: ${{ needs.get-deployment-data.outputs.working_directory }}
-        shell: bash # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+        shell: bash
 
     if: needs.get-deployment-data.result == 'success' && needs.get-deployment-data.outputs.is_deleted == 'false'
 
@@ -247,7 +247,7 @@ jobs:
     defaults:
       run:
         working-directory: ${{ needs.get-deployment-data.outputs.working_directory }}
-        shell: bash # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+        shell: bash
 
     steps:
       # Checkout the repository to the GitHub Actions runner
@@ -305,7 +305,7 @@ jobs:
     defaults:
       run:
         working-directory: ${{ needs.get-deployment-data.outputs.working_directory }}
-        shell: bash # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+        shell: bash
 
     steps:
       # Checkout the repository to the GitHub Actions runner
