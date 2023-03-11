@@ -135,8 +135,6 @@ jobs:
               exit 1
             fi
           fi
-
-          echo "working_directory=$working_directory" >> $GITHUB_OUTPUT 
           echo "environment=$environment_name" >> $GITHUB_OUTPUT
 
           echo "role_arn=$role_arn" >> $GITHUB_OUTPUT
