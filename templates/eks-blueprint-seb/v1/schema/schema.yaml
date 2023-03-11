@@ -38,11 +38,23 @@ schema:
           description: 'GitHub Repo for managing Kuberbetes ArgoCD Workloads'
           default: 'https://github.com/seb-demo/eks-blueprints-workloads.git'
 
+        workload_repo_revision:
+          title: 'GitHub ArgoCD Workloads repo revision'
+          type: string
+          description: 'Git repo revision in workload_repo_url for the ArgoCD workload deployment'
+          default: 'main'           
+
         workload_repo_path:
           title: 'GitHub ArgoCD Workloads repo path'
           type: string
           description: 'GitHub path in the Repo for managing Kuberbetes ArgoCD Workloads'
           default: 'envs/dev'
+
+        workload_repo_secret:
+          title: 'GitHub ArgoCD Workloads repo secret'
+          type: string
+          description: 'Secret Manager secret name for hosting Github SSH-Key to Access private repository'
+          default: 'github-blueprint-ssh-key'          
 
         argocd_route53_weight:
           title: 'Route 53 Weight for ArgoCD'
