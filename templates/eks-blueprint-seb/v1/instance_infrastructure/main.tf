@@ -41,8 +41,8 @@ locals {
   route53_weight             = var.service_instance.inputs.route53_weight
   ecsfrontend_route53_weight = var.service_instance.inputs.ecsfrontend_route53_weight
 
-  tag_val_vpc            = var.vpc_tag_value == "" ? local.core_stack_name : var.vpc_tag_value
-  tag_val_private_subnet = var.vpc_tag_value == "" ? "${local.core_stack_name}-private-" : var.vpc_tag_value
+  tag_val_vpc            = local.core_stack_name
+  tag_val_private_subnet = "${local.core_stack_name}-private-"
 
   node_group_name            = "managed-ondemand"
   argocd_secret_manager_name = var.environment.outputs.argocd_secret_manager_name_suffix
@@ -265,7 +265,7 @@ data "aws_subnets" "private" {
 
 # Create Sub HostedZone four our deployment
 data "aws_route53_zone" "sub" {
-  name = "${local.core_stack_name}.${var.hosted_zone_name}"
+  name = "${local.core_stack_name}.${var.environment.outputs.hosted_zone_name}"
 }
 
 

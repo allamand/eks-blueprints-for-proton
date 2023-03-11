@@ -1,7 +1,4 @@
-output "vpc_id" {
-  description = "The ID of the VPC"
-  value       = module.vpc.vpc_id
-}
+
 
 output "platform_teams_configure_kubectl" {
   description = "The command to use to configure the kubeconfig file to be used with kubectl."
