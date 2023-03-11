@@ -1,0 +1,11 @@
+{
+  "deploymentId" : "3eae51a5-db60-4127-815e-21400c555e5c",
+  "isResourceDeleted" : false,
+  "resourceMetadata" : {
+    "arn" : "arn:aws:proton:eu-west-1:382076407153:service/eks-purple/service-instance/purple",
+    "templateArn" : "arn:aws:proton:eu-west-1:382076407153:service-template/eks-blueprint-seb",
+    "templateMajorVersion" : "1",
+    "templateMinorVersion" : "6",
+    "environmentArn" : "arn:aws:proton:eu-west-1:382076407153:environment/proton"
+  }
+}
