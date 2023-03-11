@@ -1,0 +1,11 @@
+{
+  "deploymentId" : "98505ec4-20c4-4830-ac0d-d16e71a34fbc",
+  "isResourceDeleted" : false,
+  "resourceMetadata" : {
+    "arn" : "arn:aws:proton:eu-west-1:382076407153:service/eks-blue/service-instance/blue",
+    "templateArn" : "arn:aws:proton:eu-west-1:382076407153:service-template/eks-blueprint-seb",
+    "templateMajorVersion" : "1",
+    "templateMinorVersion" : "5",
+    "environmentArn" : "arn:aws:proton:eu-west-1:382076407153:environment/proton"
+  }
+}
