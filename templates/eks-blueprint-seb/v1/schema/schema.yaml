@@ -7,7 +7,6 @@ schema:
       type: object
       description: 'Input properties for eks service.'
       required:
-        - suffix_stack_name
         - iam_platform_user
         - eks_admin_role_name
         - kubernetes_version
@@ -17,10 +16,6 @@ schema:
         - workload_repo_revision
         - workload_repo_path
       properties:
-        suffix_stack_name:
-          title: 'Suffix stack name'
-          type: string
-          default: 'blue'
         iam_platform_user:
           title: 'iam_platform_user'
           type: string
