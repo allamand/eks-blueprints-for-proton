@@ -251,14 +251,14 @@ data "aws_caller_identity" "current" {}
 
 data "aws_vpc" "vpc" {
   filter {
-    name   = "tag:${var.vpc_tag_key}"
+    name   = "tag:Name"
     values = [local.tag_val_vpc]
   }
 }
 
 data "aws_subnets" "private" {
   filter {
-    name   = "tag:${var.vpc_tag_key}"
+    name   = "tag:Name"
     values = ["${local.tag_val_private_subnet}*"]
   }
 }
