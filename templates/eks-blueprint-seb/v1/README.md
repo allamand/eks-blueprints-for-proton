@@ -14,3 +14,11 @@ aws proton get-service-template-version \
  --template-name "eks-blueprint-seb" \
  --major-version "1" \
  --minor-version "2"
+
+
+
+act pull_request -v -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-22.04 -j test_github_output
+
+act -l
+act -n
+act pull_request -v -s GITHUB_TOKEN=$GITHUB_TOKEN

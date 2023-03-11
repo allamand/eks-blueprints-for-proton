@@ -20,37 +20,37 @@ output "eks_cluster_id" {
 
 output "cluster_version" {
   description = "The version of the EKS cluster."
-  value       = var.environment.inputs.kubernetes_version
+  value       = var.service_instance.inputs.cluster_version
 }
 
 output "enable_aws_load_balancer_controller" {
   description = "The flag for the Load Balancer controller."
-  value       = var.environment.inputs.aws_load_balancer_controller
+  value       = var.service_instance.inputs.aws_load_balancer_controller
 }
 
 output "enable_karpenter" {
   description = "The flag for Karpenter."
-  value       = var.environment.inputs.karpenter
+  value       = var.service_instance.inputs.karpenter
 }
 
 output "enable_metrics_server" {
   description = "The flag for the Metric Server."
-  value       = var.environment.inputs.metrics_server
+  value       = var.service_instance.inputs.metrics_server
 }
 
 output "enable_aws_for_fluentbit" {
   description = "The flag for the Fluentbit."
-  value       = var.environment.inputs.aws_for_fluentbit
+  value       = var.service_instance.inputs.aws_for_fluentbit
 }
 
 output "enable_cert_manager" {
   description = "The flag for Certificate Manager."
-  value       = var.environment.inputs.cert_manager
+  value       = var.service_instance.inputs.cert_manager
 }
 
 output "enable_vpa" {
   description = "The flag for Virtual Pod Autoscaler."
-  value       = var.environment.inputs.vpa
+  value       = var.service_instance.inputs.vpa
 }
 
 

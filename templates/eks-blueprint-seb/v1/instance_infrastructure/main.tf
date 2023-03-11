@@ -41,8 +41,8 @@ locals {
   route53_weight             = var.service_instance.inputs.route53_weight
   ecsfrontend_route53_weight = var.service_instance.inputs.ecsfrontend_route53_weight
 
-  tag_val_vpc            = var.vpc_tag_value == "" ? var.core_stack_name : var.vpc_tag_value
-  tag_val_private_subnet = var.vpc_tag_value == "" ? "${var.core_stack_name}-private-" : var.vpc_tag_value
+  tag_val_vpc            = var.vpc_tag_value == "" ? local.core_stack_name : var.vpc_tag_value
+  tag_val_private_subnet = var.vpc_tag_value == "" ? "${local.core_stack_name}-private-" : var.vpc_tag_value
 
   node_group_name            = "managed-ondemand"
   argocd_secret_manager_name = var.environment.outputs.argocd_secret_manager_name_suffix
@@ -265,7 +265,7 @@ data "aws_subnets" "private" {
 
 # Create Sub HostedZone four our deployment
 data "aws_route53_zone" "sub" {
-  name = "${var.core_stack_name}.${var.hosted_zone_name}"
+  name = "${local.core_stack_name}.${var.hosted_zone_name}"
 }
 
 
@@ -275,8 +275,6 @@ data "aws_secretsmanager_secret" "argocd" {
 
 data "aws_secretsmanager_secret_version" "admin_password_version" {
   secret_id = data.aws_secretsmanager_secret.argocd.id
-
-  depends_on = [aws_secretsmanager_secret_version.arogcd]
 }
 # data "aws_secretsmanager_secret_version" "admin_password_version" {
 #   secret_id = aws_secretsmanager_secret.arogcd.id
@@ -576,41 +574,3 @@ module "kubernetes_addons" {
 
 }
 
-
-module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
-  #version = "v3.2.0"
-  version = "~> 3.0"
-
-  name = local.name
-  cidr = local.vpc_cidr
-
-  azs             = local.azs
-  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
-  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 10)]
-
-  enable_nat_gateway   = true
-  create_igw           = true
-  enable_dns_hostnames = true
-  single_nat_gateway   = true
-
-  # Manage so we can name
-  manage_default_network_acl    = true
-  default_network_acl_tags      = { Name = "${local.name}-default" }
-  manage_default_route_table    = true
-  default_route_table_tags      = { Name = "${local.name}-default" }
-  manage_default_security_group = true
-  default_security_group_tags   = { Name = "${local.name}-default" }
-
-  public_subnet_tags = {
-    "kubernetes.io/cluster/${local.name}" = "shared"
-    "kubernetes.io/role/elb"              = "1"
-  }
-
-  private_subnet_tags = {
-    "kubernetes.io/cluster/${local.name}" = "shared"
-    "kubernetes.io/role/internal-elb"     = "1"
-  }
-
-  tags = local.tags
-}
