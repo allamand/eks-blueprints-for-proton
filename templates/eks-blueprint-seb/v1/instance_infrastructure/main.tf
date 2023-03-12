@@ -34,7 +34,7 @@ locals {
 
   eks_cluster_domain = "${local.core_stack_name}.${var.environment.outputs.hosted_zone_name}" # for external-dns
 
-  cluster_version = var.service_instance.inputs.cluster_version
+  kubernetes_version = var.service_instance.inputs.kubernetes_version
 
   # Route 53 Ingress Weights
   argocd_route53_weight      = var.service_instance.inputs.argocd_route53_weight
@@ -53,7 +53,7 @@ locals {
 
   addon_application = {
     path                = "chart"
-    repo_url            = "${var.service_instance.inputs.addons_repo_url}"
+    repo_url            = "${var.service_instance.inputs.addon_repo_url}"
     ssh_key_secret_name = "${var.service_instance.inputs.workload_repo_secret}"
     add_on_application  = true
   }
@@ -296,7 +296,7 @@ module "eks_blueprints" {
   private_subnet_ids = data.aws_subnets.private.ids
 
   # EKS CONTROL PLANE VARIABLES
-  cluster_version = local.cluster_version
+  cluster_version = local.kubernetes_version
 
   # List of map_roles
   map_roles = [
@@ -471,16 +471,16 @@ module "eks_blueprints" {
 
 
 #resource "aws_route53_zone" "main" {
-data "aws_route53_zone" "main" {
-  name = var.service_instance.inputs.eks_cluster_domain
-}
+# data "aws_route53_zone" "main" {
+#   name = var.service_instance.inputs.eks_cluster_domain
+# }
 
 # Add the following to the bottom of main.tf
 module "kubernetes_addons" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.25.0/modules/kubernetes-addons"
 
   eks_cluster_id     = module.eks_blueprints.eks_cluster_id
-  eks_cluster_domain = var.service_instance.inputs.eks_cluster_domain
+  eks_cluster_domain = local.eks_cluster_domain
 
   #---------------------------------------------------------------
   # ARGO CD ADD-ON
@@ -520,28 +520,28 @@ module "kubernetes_addons" {
   enable_amazon_eks_coredns = true
   amazon_eks_coredns_config = {
     most_recent        = true
-    kubernetes_version = local.cluster_version
+    kubernetes_version = local.kubernetes_version
     resolve_conflicts  = "OVERWRITE"
   }
 
   enable_amazon_eks_aws_ebs_csi_driver = true
   amazon_eks_aws_ebs_csi_driver_config = {
     most_recent        = true
-    kubernetes_version = local.cluster_version
+    kubernetes_version = local.kubernetes_version
     resolve_conflicts  = "OVERWRITE"
   }
 
   enable_amazon_eks_kube_proxy = true
   amazon_eks_kube_proxy_config = {
     most_recent        = true
-    kubernetes_version = local.cluster_version
+    kubernetes_version = local.kubernetes_version
     resolve_conflicts  = "OVERWRITE"
   }
 
   enable_amazon_eks_vpc_cni = true
   amazon_eks_vpc_cni_config = {
     most_recent        = true
-    kubernetes_version = local.cluster_version
+    kubernetes_version = local.kubernetes_version
     resolve_conflicts  = "OVERWRITE"
   }
 

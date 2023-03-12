@@ -117,3 +117,7 @@ schema:
           title: 'Enable Argo Rollouts'
           type: boolean
           default: true                
+        cloudwatch_metrics:
+          title: 'Enable Container Insights'
+          type: boolean
+          default: true                
