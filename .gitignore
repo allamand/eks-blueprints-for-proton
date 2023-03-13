@@ -5,3 +5,4 @@ kube-config.yaml
 .envrc
 .vscode
 tmp
+.terraform.lock.hcl

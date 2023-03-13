@@ -280,11 +280,6 @@ data "aws_secretsmanager_secret" "argocd" {
 data "aws_secretsmanager_secret_version" "admin_password_version" {
   secret_id = data.aws_secretsmanager_secret.argocd.id
 }
-# data "aws_secretsmanager_secret_version" "admin_password_version" {
-#   secret_id = aws_secretsmanager_secret.arogcd.id
-
-#
-# }
 
 module "eks_blueprints" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.25.0"

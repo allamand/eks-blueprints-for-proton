@@ -5,8 +5,7 @@ provider "aws" {
 
 
 locals {
-  name   = var.environment.inputs.core_stack_name
-  region = var.aws_region
+  name = var.environment.inputs.core_stack_name
 
   vpc_cidr       = var.environment.inputs.vpc_cidr
   num_of_subnets = min(length(data.aws_availability_zones.available.names), 3)
