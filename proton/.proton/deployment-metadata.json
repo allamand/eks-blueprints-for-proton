@@ -1,10 +1,10 @@
 {
-  "deploymentId" : "baa2fd2e-8aaf-4172-b8da-602634e34ae8",
+  "deploymentId" : "233a3960-3a5f-4e06-88ae-0f322cf965f0",
   "isResourceDeleted" : false,
   "resourceMetadata" : {
     "arn" : "arn:aws:proton:eu-west-1:382076407153:environment/proton",
     "templateArn" : "arn:aws:proton:eu-west-1:382076407153:environment-template/core-infra",
     "templateMajorVersion" : "1",
-    "templateMinorVersion" : "3"
+    "templateMinorVersion" : "5"
   }
 }
