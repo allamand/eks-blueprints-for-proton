@@ -59,13 +59,13 @@ schema:
           title: 'Route 53 Weight for the ecsdemo applications'
           type: string
           description: 'Weight for the Route 53 weighted record for ecsdemo applications'
-          default: '100'            
+          default: '100'
 
         route53_weight:
           title: 'Route 53 Weight for other applications'
           type: string
           description: 'Weight for the Route 53 weighted record for others applications'
-          default: '100'          
+          default: '100'
 
 
         kubernetes_version:
@@ -77,7 +77,7 @@ schema:
         aws_load_balancer_controller:
           title: 'Enable AWS Load Balancer Controller Add-On'
           type: boolean
-          default: true       
+          default: true
         metrics_server:
           title: 'Enable Metrics Server Add-On'
           type: boolean
@@ -105,8 +105,8 @@ schema:
         kubecost:
           title: 'Enable Kubecost'
           type: boolean
-          default: true    
+          default: true
         argo_rollouts:
           title: 'Enable Argo Rollouts'
           type: boolean
-          default: true                
+          default: true

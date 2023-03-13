@@ -120,7 +120,7 @@ module "eks_blueprints" {
         "projectName"                             = "ecsdemo-frontend",
         "environment"                             = "dev",
       }
-      #don't use quotas here cause ecsdemo app does not have request/limits 
+      #don't use quotas here cause ecsdemo app does not have request/limits
       "quota" = {
         "requests.cpu"    = "10000m",
         "requests.memory" = "20Gi",
@@ -141,7 +141,7 @@ module "eks_blueprints" {
         "projectName"                             = "ecsdemo-nodejs",
         "environment"                             = "dev",
       }
-      #don't use quotas here cause ecsdemo app does not have request/limits 
+      #don't use quotas here cause ecsdemo app does not have request/limits
       "quota" = {
         "requests.cpu"    = "10000m",
         "requests.memory" = "20Gi",
@@ -162,7 +162,7 @@ module "eks_blueprints" {
         "projectName"                             = "ecsdemo-crystal",
         "environment"                             = "dev",
       }
-      #don't use quotas here cause ecsdemo app does not have request/limits 
+      #don't use quotas here cause ecsdemo app does not have request/limits
       "quota" = {
         "requests.cpu"    = "10000m",
         "requests.memory" = "20Gi",
@@ -259,7 +259,7 @@ module "kubernetes_addons" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.8.0/modules/kubernetes-addons"
 
   eks_cluster_id     = module.eks_blueprints.eks_cluster_id
-  eks_cluster_domain = var.environment.inputs.eks_cluster_domain # for external-dns  
+  eks_cluster_domain = var.environment.inputs.eks_cluster_domain # for external-dns
 
   #---------------------------------------------------------------
   # ARGO CD ADD-ON

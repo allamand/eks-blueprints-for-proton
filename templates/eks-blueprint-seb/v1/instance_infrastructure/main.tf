@@ -283,7 +283,7 @@ data "aws_secretsmanager_secret_version" "admin_password_version" {
 # data "aws_secretsmanager_secret_version" "admin_password_version" {
 #   secret_id = aws_secretsmanager_secret.arogcd.id
 
-#   
+#
 # }
 
 module "eks_blueprints" {
@@ -406,7 +406,7 @@ module "eks_blueprints" {
         "projectName"                             = "ecsdemo-frontend",
         "environment"                             = "dev",
       }
-      #don't use quotas here cause ecsdemo app does not have request/limits 
+      #don't use quotas here cause ecsdemo app does not have request/limits
       "quota" = {
         "requests.cpu"    = "100",
         "requests.memory" = "20Gi",
@@ -427,7 +427,7 @@ module "eks_blueprints" {
         "projectName"                             = "ecsdemo-nodejs",
         "environment"                             = "dev",
       }
-      #don't use quotas here cause ecsdemo app does not have request/limits 
+      #don't use quotas here cause ecsdemo app does not have request/limits
       "quota" = {
         "requests.cpu"    = "10000m",
         "requests.memory" = "20Gi",
@@ -448,7 +448,7 @@ module "eks_blueprints" {
         "projectName"                             = "ecsdemo-crystal",
         "environment"                             = "dev",
       }
-      #don't use quotas here cause ecsdemo app does not have request/limits 
+      #don't use quotas here cause ecsdemo app does not have request/limits
       "quota" = {
         "requests.cpu"    = "10000m",
         "requests.memory" = "20Gi",

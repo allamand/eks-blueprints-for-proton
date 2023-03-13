@@ -1,4 +1,4 @@
-# EKS Blueprint Template based on EKS Blueprint Workshop 
+# EKS Blueprint Template based on EKS Blueprint Workshop
 
 We will reuse the terraform code built by the [EKS Blueprint Workshop](https://catalog.workshops.aws/eks-blueprints-terraform/en-US)
 

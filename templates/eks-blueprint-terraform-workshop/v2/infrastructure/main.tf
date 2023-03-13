@@ -112,7 +112,7 @@ module "eks_blueprints" {
         "projectName"                             = "ecsdemo-frontend",
         "environment"                             = "dev",
       }
-      #don't use quotas here cause ecsdemo app does not have request/limits 
+      #don't use quotas here cause ecsdemo app does not have request/limits
       "quota" = {
         "requests.cpu"    = "10000m",
         "requests.memory" = "20Gi",
