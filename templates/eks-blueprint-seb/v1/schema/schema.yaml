@@ -30,13 +30,13 @@ schema:
           title: 'GitHub Addons repo'
           type: string
           description: 'GitHub Repo for managing Kuberbetes Addons'
-          default: 'https://github.com/aws-samples/eks-blueprints-add-ons.git'
+          default: 'git@github.com:aws-samples/eks-blueprints-add-ons.git'
 
         workload_repo_url:
           title: 'GitHub ArgoCD Workloads repo'
           type: string
           description: 'GitHub Repo for managing Kuberbetes ArgoCD Workloads'
-          default: 'https://github.com/seb-demo/eks-blueprints-workloads.git'
+          default: 'git@github.com:seb-demo/eks-blueprints-workloads.git'
 
         workload_repo_revision:
           title: 'GitHub ArgoCD Workloads repo revision'

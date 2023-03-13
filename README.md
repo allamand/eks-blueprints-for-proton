@@ -236,10 +236,22 @@ The Terraform state used when deploying from Github Action is store in s3 on AWS
 
 In case there are some kind of issues in the deployment and you would like to replay this locally, you can do it by just pointing your terraform to your existing s3 terraform state bucket specify in your `env_config.json` file:
 
+I recommand adding a .envrc file like this one
+
 ```bash
-export TERRAFORM_BUCKET=$(cat ../env_config.json| jq ".[].state_bucket" -r)
-export CLUSTER_NAME=eks-cohort-delete-demo
-terraform init -backend-config="bucket=$TERRAFORM_BUCKET" -backend-config="key=$CLUSTER_NAME/terraform.tfstate" -backend-config="region=$AWS_REGION"
+export KUBECONFIG=$PWD/kube-config.yaml
+
+export TERRAFORM_BUCKET=$(cat ../../env_config.json| jq ".[].state_bucket" -r)
+export ENVIRONMENT_NAME=$(cat *.auto.tfvars.json | jq ".environment.name" -r)
+export SERVICE_NAME=$(cat *.auto.tfvars.json | jq ".service.name" -r)
+export SERVICE_INSTANCE_NAME=$(cat *.auto.tfvars.json | jq ".service_instance.name" -r)
+
+export CLUSTER_NAME="$SERVICE_NAME-$SERVICE_INSTANCE_NAME"
+
+
+echo "run this command to retrieve the Terraform state"
+echo terraform init -backend-config="bucket=$TERRAFORM_BUCKET" -backend-config="key=$ENVIRONMENT_NAME/$SERVICE_NAME-$SERVICE_INSTANCE_NAME/terraform.tfstate" -backend-config="region=$AWS_REGION"
+
 ```
 
 Then you can work with terraform using it's real state.
