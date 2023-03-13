@@ -49,14 +49,16 @@ module "vpc" {
 
   public_subnet_tags = {
     "kubernetes.io/cluster/${local.name}"       = "shared"
-    "kubernetes.io/cluster/${local.name}-blue"  = "shared"
+    "kubernetes.io/cluster/${local.name}-eks"  = "shared"
+    "kubernetes.io/cluster/${local.name}-blue"  = "shared"    
     "kubernetes.io/cluster/${local.name}-green" = "shared"
     "kubernetes.io/role/elb"                    = "1"
   }
 
   private_subnet_tags = {
     "kubernetes.io/cluster/${local.name}"       = "shared"
-    "kubernetes.io/cluster/${local.name}-blue"  = "shared"
+    "kubernetes.io/cluster/${local.name}-eks"  = "shared"
+    "kubernetes.io/cluster/${local.name}-blue"  = "shared"    
     "kubernetes.io/cluster/${local.name}-green" = "shared"
     "kubernetes.io/role/internal-elb"           = "1"
   }
