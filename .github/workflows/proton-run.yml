@@ -276,8 +276,8 @@ jobs:
           # Get outputs as json
           outputs_json=$(terraform output -json)
 
-          # Map Terraform output JSON to Proton outputs JSON
-          formatted_outputs=( $(echo $outputs_json | jq "to_entries|map({key: .key, valueString: .value.value})") )
+          # Map Terraform output JSON to Proton outputs JSON (filter on only strings, ex bool types are not working with proton)
+          formatted_outputs=( $(echo $outputs_json | jq 'to_entries|map(select(.value.type == "string") | {key: .key, valueString: .value.value})') ) 
 
           # Notify proton
           aws proton notify-resource-deployment-status-change --region ${{ needs.get-deployment-data.outputs.proton_region }} --resource-arn ${{ needs.get-deployment-data.outputs.resource_arn }} --status SUCCEEDED --deployment-id ${{ needs.get-deployment-data.outputs.deployment_id }} --outputs "${formatted_outputs[*]}"
@@ -325,6 +325,13 @@ jobs:
       - name: Terraform Init
         id: tf_init
         run: terraform init -backend-config="bucket=${{ needs.get-deployment-data.outputs.state_bucket }}" -backend-config="key=${{ needs.get-deployment-data.outputs.working_directory }}terraform.tfstate" -backend-config="region=${{ needs.get-deployment-data.outputs.target_region }}"
+
+      - name: Clean EKS cluster applications
+        id: eks_connect
+        run: |
+          cmd=$(terraform output | grep eks | awk -F "configure_kubectl = " '{print $2}' | cut -d\" -f2)
+          eval $cmd
+          kubectl delete applications --all -A
 
       - name: Terraform Destroy (Add-ons)
         id: tf_destroy_addons
