@@ -43,7 +43,7 @@ infrastructure:
 
           # Debug
           - cat proton-inputs.json
-          
+
           # destroy environment
           - terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="key=${PROTON_ENV}.tfstate" -backend-config="region=${TF_STATE_BUCKET_REGION}"
           - terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve
