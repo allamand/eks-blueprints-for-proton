@@ -13,11 +13,6 @@ output "aws_acm_certificate_status" {
   value       = module.acm.acm_certificate_status
 }
 
-output "core_stack_name" {
-  description = "Core Infra stack name"
-  value       = var.environment.inputs.core_stack_name
-}
-
 output "hosted_zone_name" {
   description = "Hosted Zone Name"
   value       = var.environment.inputs.hosted_zone_name
