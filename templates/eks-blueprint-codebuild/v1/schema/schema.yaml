@@ -42,7 +42,7 @@ schema:
           title: 'GitHub ArgoCD Workloads repo revision'
           type: string
           description: 'Git repo revision in workload_repo_url for the ArgoCD workload deployment'
-          default: 'main'
+          default: 'working_eks_blue'
 
         workload_repo_path:
           title: 'GitHub ArgoCD Workloads repo path'

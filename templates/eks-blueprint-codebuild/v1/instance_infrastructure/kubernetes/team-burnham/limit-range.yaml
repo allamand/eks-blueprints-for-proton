@@ -10,7 +10,7 @@ spec:
         cpu: '2'
         memory: '1Gi'
       min:
-        cpu: '100m'
+        cpu: '10m'
         memory: '4Mi'
       default:
         cpu: '300m'
