@@ -6,3 +6,4 @@ kube-config.yaml
 .vscode
 tmp
 .terraform.lock.hcl
+proton-inputs.json
