@@ -1,0 +1,4 @@
+compatible_environments:
+  - core-infra:1
+supported_component_sources:
+  - DIRECTLY_DEFINED
