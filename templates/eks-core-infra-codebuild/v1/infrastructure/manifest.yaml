@@ -20,6 +20,10 @@ infrastructure:
           - export TF_STATE_BUCKET=$(cat proton-inputs.json | jq '.environment.inputs.tf_state_bucket' -r)
           - export TF_STATE_BUCKET_REGION=$(cat proton-inputs.json | jq '.environment.inputs.tf_state_bucket_region' -r)
 
+          # Debug
+          - cat proton-inputs.json | jq "."
+          - set -x
+
           # provision, storing state in an s3 bucket using the proton environment.service.instance as the key
           - terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="key=${PROTON_ENV}.tfstate" -backend-config="region=${TF_STATE_BUCKET_REGION}"
           - terraform apply -var-file=proton-inputs.json -var="region=${AWS_REGION}" -auto-approve
