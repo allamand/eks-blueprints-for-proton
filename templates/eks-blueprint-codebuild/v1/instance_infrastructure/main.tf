@@ -26,10 +26,10 @@ provider "kubectl" {
 
 
 locals {
-  environment = var.environment
+  environment = var.environment.name
   service     = var.service.name
 
-  env  = var.environment.outputs.environment
+  env  = var.environment.name
   name = "${local.environment}-${local.service}"
 
   eks_cluster_domain = "${local.environment}.${var.environment.outputs.hosted_zone_name}" # for external-dns
