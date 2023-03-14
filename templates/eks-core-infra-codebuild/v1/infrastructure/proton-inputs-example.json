@@ -5,8 +5,8 @@
       "aws_region": "eu-west-1",
       "vpc_cidr": "10.0.0.0/16",
       "argocd_secret_manager_name_suffix": "argocd-admin-secret",
-      "hosted_zone_name": "mydomain.com",
-      "tf_state_bucket": "aws-proton-terraform-bucket-xxxx",
+      "hosted_zone_name": "sallaman.people.aws.dev",
+      "tf_state_bucket": "aws-proton-terraform-bucket-382076407153",
       "tf_state_bucket_region": "eu-west-1"
     }
   }

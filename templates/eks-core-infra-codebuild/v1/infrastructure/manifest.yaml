@@ -21,20 +21,7 @@ infrastructure:
           - export TF_STATE_BUCKET_REGION=$(cat proton-inputs.json | jq '.environment.inputs.tf_state_bucket_region' -r)
 
           # Debug
-          - cat proton-inputs.json | jq "."
-          - set -x
-# Example of input:
-# {
-#   "environment": {
-#     "name": "eks-core-infra-codebuild-test",
-#     "inputs": {
-#       "core_stack_name": "eks-core-infra-codebuild-test",
-#       "vpc_cidr": "10.0.0.0/16",
-#       "argocd_secret_manager_name_suffix": "argocd-admin-secret",
-#       "hosted_zone_name": "sallaman.people.aws.dev"
-#     }
-#   }
-# }
+          - cat proton-inputs.json
 
           # provision, storing state in an s3 bucket using the proton environment.service.instance as the key
           - terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="key=${PROTON_ENV}.tfstate" -backend-config="region=${TF_STATE_BUCKET_REGION}"
@@ -54,6 +41,9 @@ infrastructure:
           - export TF_STATE_BUCKET=$(cat proton-inputs.json | jq '.environment.inputs.tf_state_bucket' -r)
           - export TF_STATE_BUCKET_REGION=$(cat proton-inputs.json | jq '.environment.inputs.tf_state_bucket_region' -r)
 
+          # Debug
+          - cat proton-inputs.json
+          
           # destroy environment
           - terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="key=${PROTON_ENV}.tfstate" -backend-config="region=${TF_STATE_BUCKET_REGION}"
-          - terraform destroy -var-file=proton-inputs.json -var="region=${AWS_REGION}" -auto-approve
+          - terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve
