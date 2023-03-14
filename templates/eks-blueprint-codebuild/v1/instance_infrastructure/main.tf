@@ -26,8 +26,8 @@ provider "kubectl" {
 
 
 locals {
-  environment   = var.environment
-  service = var.service.name
+  environment = var.environment
+  service     = var.service.name
 
   env  = var.environment.outputs.environment
   name = "${local.environment}-${local.service}"

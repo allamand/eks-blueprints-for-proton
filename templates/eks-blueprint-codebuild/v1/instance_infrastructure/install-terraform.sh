@@ -9,3 +9,4 @@ gpg --verify terraform_${TF_VERSION}_SHA256SUMS.sig terraform_${TF_VERSION}_SHA2
 shasum -a 256 -c terraform_${TF_VERSION}_SHA256SUMS 2>&1 | grep "${TF_VERSION}_linux_amd64.zip:\sOK" && \
 unzip -o terraform_${TF_VERSION}_linux_amd64.zip -d /usr/local/bin && \
 terraform --version
+
