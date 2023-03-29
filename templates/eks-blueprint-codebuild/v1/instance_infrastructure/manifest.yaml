@@ -50,6 +50,14 @@ infrastructure:
           # Debug
           - cat proton-inputs.json | jq "."
 
-          # destroy environment
+          # Init Terraform
           - terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="region=${TF_STATE_BUCKET_REGION}" -backend-config="key=${KEY}.tfstate"
+
+          # Connect to EKS
+          - cmd=$(terraform output | grep eks | awk -F "configure_kubectl = " '{print $2}' | cut -d\" -f2)
+          - eval $cmd
+          - kubectl delete applications -n argocd workloads
+          - kubectl delete applications -n argocd ecsdemo
+
+          # destroy environment
           - terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve
