@@ -1,9 +1,5 @@
 /*
-This file is managed by AWS Proton. Any changes made directly to this file will be overwritten the next time AWS Proton performs an update.
-
-To manage this resource, see AWS Proton Resource: arn:aws:proton:eu-west-1:382076407153:service/eks/service-instance/blue
-
-If the resource is no longer accessible within AWS Proton, it may have been deleted and may require manual cleanup.
+This file is no longer managed by AWS Proton. The associated resource has been deleted in Proton.
 */
 
 provider "aws" {
@@ -290,7 +286,7 @@ data "aws_secretsmanager_secret_version" "admin_password_version" {
 }
 
 module "eks_blueprints" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.27.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.25.0"
 
   cluster_name = local.name
 
@@ -480,7 +476,7 @@ module "eks_blueprints" {
 
 # Add the following to the bottom of main.tf
 module "kubernetes_addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.27.0/modules/kubernetes-addons"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.25.0/modules/kubernetes-addons"
 
   eks_cluster_id     = module.eks_blueprints.eks_cluster_id
   eks_cluster_domain = local.eks_cluster_domain
