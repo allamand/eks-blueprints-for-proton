@@ -291,7 +291,7 @@ data "aws_secretsmanager_secret_version" "admin_password_version" {
 # }
 
 module "eks_blueprints" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.25.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.27.0"
 
   cluster_name = local.name
 
@@ -481,7 +481,7 @@ module "eks_blueprints" {
 
 # Add the following to the bottom of main.tf
 module "kubernetes_addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.25.0/modules/kubernetes-addons"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.27.0/modules/kubernetes-addons"
 
   eks_cluster_id     = module.eks_blueprints.eks_cluster_id
   eks_cluster_domain = local.eks_cluster_domain
