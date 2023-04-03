@@ -34,3 +34,8 @@ destroy: set-local-service
 	terraform destroy -var-file=proton-inputs.json -var="aws_region=$$AWS_REGION"
 
 
+plan: #set-local-service
+	echo PROTON_ENV=$$PROTON_ENV AWS_REGION=$$AWS_REGION TF_STATE_BUCKET=$$TF_STATE_BUCKET TF_STATE_BUCKET_REGION=$$TF_STATE_BUCKET_REGION PROTON_SVC=$$PROTON_SVC PROTON_SVC_INSTANCE=$$PROTON_SVC_INSTANCE KEY=$$KEY
+	terraform plan -var-file=proton-inputs.json -var="aws_region=$$AWS_REGION"
+
+
