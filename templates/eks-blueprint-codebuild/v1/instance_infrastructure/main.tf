@@ -268,6 +268,19 @@ data "aws_subnets" "private" {
   }
 }
 
+#Add Tags for the new cluster in the VPC Subnets
+resource "aws_subnet" "private" {
+  for_each = { for subnet in data.aws_subnets.private : subnet.id => subnet }
+
+  id         = each.value.id
+  vpc_id     = each.value.vpc_id
+  cidr_block = each.value.cidr_block
+
+  tags = {
+    Name = "${each.value.tags.Name}-${local.service}"
+  }
+}
+
 # Create Sub HostedZone four our deployment
 data "aws_route53_zone" "sub" {
   name = "${local.environment}.${var.environment.outputs.hosted_zone_name}"
