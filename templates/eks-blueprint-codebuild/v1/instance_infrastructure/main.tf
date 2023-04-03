@@ -273,7 +273,7 @@ data "aws_subnets" "private" {
 resource "aws_ec2_tag" "private_subnets" {
   for_each    = toset(data.aws_subnets.private.ids)
   resource_id = each.value
-  key         = "${var.environment.name}-{local.service}"
+  key         = "${var.environment.name}-${local.service}"
   value       = "shared"
 }
 
