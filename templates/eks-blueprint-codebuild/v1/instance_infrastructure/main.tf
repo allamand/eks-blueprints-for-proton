@@ -273,9 +273,11 @@ data "aws_subnets" "private" {
 resource "aws_ec2_tag" "private_subnets" {
   for_each    = toset(data.aws_subnets.private.ids)
   resource_id = each.value
-  key         = "${var.environment.name}-${local.service}"
+  key         = "kubernetes.io/cluster/${var.environment.name}-${local.service}"
   value       = "shared"
 }
+#kubernetes.io/cluster/prod-eks-prod-eks-blue:* kubernetes.io/role/internal-elb:1
+#prod-eks-prod-eks-blue	shared
 
 # resource "aws_subnet" "private" {
 #   for_each = { for k,v in data.aws_subnets.private : k.id => v }
