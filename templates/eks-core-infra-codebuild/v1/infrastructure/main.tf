@@ -3,8 +3,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-
-
 locals {
   name = var.environment.name
 
@@ -50,23 +48,11 @@ module "vpc" {
 
   public_subnet_tags = {
     "kubernetes.io/cluster/${local.name}"              = "shared"
-    "kubernetes.io/cluster/${local.name}-eks-pink"     = "shared"
-    "kubernetes.io/cluster/${local.name}-eks-blue"     = "shared"
-    "kubernetes.io/cluster/${local.name}-eks-green"    = "shared"
-    "kubernetes.io/cluster/${local.name}-proton-pink"  = "shared"
-    "kubernetes.io/cluster/${local.name}-proton-blue"  = "shared"
-    "kubernetes.io/cluster/${local.name}-proton-green" = "shared"
     "kubernetes.io/role/elb"                           = "1"
   }
 
   private_subnet_tags = {
     "kubernetes.io/cluster/${local.name}"              = "shared"
-    "kubernetes.io/cluster/${local.name}-eks-pink"     = "shared"
-    "kubernetes.io/cluster/${local.name}-eks-blue"     = "shared"
-    "kubernetes.io/cluster/${local.name}-eks-green"    = "shared"
-    "kubernetes.io/cluster/${local.name}-proton-pink"  = "shared"
-    "kubernetes.io/cluster/${local.name}-proton-blue"  = "shared"
-    "kubernetes.io/cluster/${local.name}-proton-green" = "shared"
     "kubernetes.io/role/internal-elb"                  = "1"
   }
 
