@@ -61,8 +61,13 @@ infrastructure:
           # Connect to EKS
           - cmd=$(terraform output | grep eks | awk -F "configure_kubectl = " '{print $2}' | cut -d\" -f2)
           - eval $cmd
+          # 1. first remove applications protections
+          - kubectl delete pdb --all -A
+          # 2. Then remove ArgoCD applications
           - kubectl delete applications -n argocd workloads
           - kubectl delete applications -n argocd ecsdemo
 
           # destroy environment
+          - terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.kubernetes_addons"
+          - terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.eks_blueprints"
           - terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve
