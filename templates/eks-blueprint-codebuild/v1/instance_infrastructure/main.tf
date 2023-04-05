@@ -269,27 +269,12 @@ data "aws_subnets" "private" {
 }
 
 #Add Tags for the new cluster in the VPC Subnets
-
 resource "aws_ec2_tag" "private_subnets" {
   for_each    = toset(data.aws_subnets.private.ids)
   resource_id = each.value
   key         = "kubernetes.io/cluster/${var.environment.name}-${local.service}"
   value       = "shared"
 }
-#kubernetes.io/cluster/prod-eks-prod-eks-blue:* kubernetes.io/role/internal-elb:1
-#prod-eks-prod-eks-blue	shared
-
-# resource "aws_subnet" "private" {
-#   for_each = { for k,v in data.aws_subnets.private : k.id => v }
-
-#   id         = each.value.id
-#   vpc_id     = each.value.vpc_id
-#   cidr_block = each.value.cidr_block
-
-#   tags = {
-#     Name = "${each.value.tags.Name}-${local.service}"
-#   }
-# }
 
 # Create Sub HostedZone four our deployment
 data "aws_route53_zone" "sub" {
