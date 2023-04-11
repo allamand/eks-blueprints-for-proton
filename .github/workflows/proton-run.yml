@@ -325,6 +325,7 @@ jobs:
       - name: Terraform Init
         id: tf_init
         run: terraform init -backend-config="bucket=${{ needs.get-deployment-data.outputs.state_bucket }}" -backend-config="key=${{ needs.get-deployment-data.outputs.working_directory }}terraform.tfstate" -backend-config="region=${{ needs.get-deployment-data.outputs.target_region }}"
+        # terraform init -backend-config="bucket=${{ needs.get-deployment-data.outputs.state_bucket }}" -backend-config="key=${{ needs.get-deployment-data.outputs.working_directory }}terraform.tfstate" -backend-config="region=${{ needs.get-deployment-data.outputs.target_region }}"
 
       - name: Clean EKS cluster applications
         id: eks_connect

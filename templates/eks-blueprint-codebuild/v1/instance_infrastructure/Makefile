@@ -7,6 +7,14 @@ $(aws sts assume-role \
 --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
 --output text))
 
+#export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
+$(aws sts assume-role \
+--role-arn arn:aws:iam::382076407153:role/GitHubAppRunner-Terraform \
+--role-session-name MySessionName \
+--query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
+--output text))
+
+
 format:
 	terraform fmt
 

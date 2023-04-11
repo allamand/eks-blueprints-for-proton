@@ -236,6 +236,20 @@ The Terraform state used when deploying from Github Action is store in s3 on AWS
 
 In case there are some kind of issues in the deployment and you would like to replay this locally, you can do it by just pointing your terraform to your existing s3 terraform state bucket specify in your `env_config.json` file:
 
+For environment:
+
+```bash
+export TERRAFORM_BUCKET=$(cat ../env_config.json| jq ".[].state_bucket" -r)
+export ENVIRONMENT_NAME=$(cat *.auto.tfvars.json | jq ".environment.name" -r)
+```
+
+```
+echo "run this command to retrieve the Terraform state"
+echo terraform init -backend-config="bucket=$TERRAFORM_BUCKET" -backend-config="key=$ENVIRONMENT_NAME/$ENVIRONMENT_NAME/terraform.tfstate" -backend-config="region=$AWS_REGION"
+```
+
+For service:
+
 I recommand adding a .envrc file like this one
 
 ```bash

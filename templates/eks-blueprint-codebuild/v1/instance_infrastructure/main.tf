@@ -43,6 +43,7 @@ locals {
   ecsfrontend_route53_weight = var.service_instance.inputs.ecsfrontend_route53_weight
 
   tag_val_vpc            = local.environment
+  tag_val_public_subnet  = "${local.environment}-public-"
   tag_val_private_subnet = "${local.environment}-private-"
 
   node_group_name            = "managed-ondemand"
@@ -271,6 +272,21 @@ data "aws_subnets" "private" {
 #Add Tags for the new cluster in the VPC Subnets
 resource "aws_ec2_tag" "private_subnets" {
   for_each    = toset(data.aws_subnets.private.ids)
+  resource_id = each.value
+  key         = "kubernetes.io/cluster/${var.environment.name}-${local.service}"
+  value       = "shared"
+}
+
+data "aws_subnets" "public" {
+  filter {
+    name   = "tag:Name"
+    values = ["${local.tag_val_public_subnet}*"]
+  }
+}
+
+#Add Tags for the new cluster in the VPC Subnets
+resource "aws_ec2_tag" "public_subnets" {
+  for_each    = toset(data.aws_subnets.public.ids)
   resource_id = each.value
   key         = "kubernetes.io/cluster/${var.environment.name}-${local.service}"
   value       = "shared"
