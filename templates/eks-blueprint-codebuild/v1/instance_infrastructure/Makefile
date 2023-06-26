@@ -21,14 +21,15 @@ format:
 check:
 	terraform fmt -diff -check
 
-applications != kubectl get applications -n argocd -o json  | jq ".items[].metadata.name" -r
+applications != kubectl get applications -n argocd -o json  | jq ".items[].metadata.name" -r | grep -v addons
 
 clean:
-	kubectl patch -n argocd applications $(applications) -p '{"metadata":{"finalizers":null}}' --type=merge)
+	kubectl patch -n argocd applications $(applications) -p '{"metadata":{"finalizers":null}}' --type=merge
 
 clean-finalizers:
 	echo $(applications)
-  res=$(shell kubectl patch -n argocd applications $(applications) -p '{"metadata":{"finalizers":null}}' --type=merge) ; \
+  #echo "kubectl patch -n argocd applications $(applications) -p '{\"metadata\":{\"finalizers\":null}}' --type=merge"
+	res=$(shell kubectl patch -n argocd applications $(applications) -p '{"metadata":{"finalizers":null}}' --type=merge) ; \
 	echo $$res
 
 verify:

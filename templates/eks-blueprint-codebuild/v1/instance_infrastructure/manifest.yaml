@@ -10,6 +10,8 @@ infrastructure:
             TF_VERSION: 1.4.0
 
         provision:
+          - echo "Proton Provisioning for PROTON_SVC=$(cat proton-inputs.json | jq '.service.name' -r) in PROTON_ENV=$(cat proton-inputs.json | jq '.environment.name' -r)"
+
           # install terraform cli
           - echo "Installing Terraform CLI ${TF_VERSION}"
           - chmod +x ./install-terraform.sh && ./install-terraform.sh ${TF_VERSION}
@@ -39,6 +41,8 @@ infrastructure:
           - chmod +x ./output.sh && ./output.sh
 
         deprovision:
+          - echo "Proton Deprovisioning for PROTON_SVC=$(cat proton-inputs.json | jq '.service.name' -r) in PROTON_ENV=$(cat proton-inputs.json | jq '.environment.name' -r)"
+
           # install terraform cli
           - echo "Installing Terraform CLI ${TF_VERSION}"
           - chmod +x ./install-terraform.sh && ./install-terraform.sh ${TF_VERSION}

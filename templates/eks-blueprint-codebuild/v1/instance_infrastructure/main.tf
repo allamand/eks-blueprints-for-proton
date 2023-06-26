@@ -30,33 +30,55 @@ locals {
   environment = var.environment.name
   service     = var.service.name
 
-  env  = var.environment.name
+  env  = local.environment
   name = "${local.environment}-${local.service}"
 
-  eks_cluster_domain = "${local.environment}.${var.environment.outputs.hosted_zone_name}" # for external-dns
+  # Mapping
+  hosted_zone_name           = var.environment.outputs.hosted_zone_name
+  addons_repo_url            = var.service_instance.inputs.addons_repo_url
+  workload_repo_secret       = var.service_instance.inputs.workload_repo_secret
+  kubernetes_version         = var.service_instance.inputs.kubernetes_version
+  argocd_secret_manager_name = var.environment.outputs.argocd_secret_manager_name_suffix
+  workload_repo_path         = var.service_instance.inputs.workload_repo_path
+  workload_repo_url          = var.service_instance.inputs.workload_repo_url
+  workload_repo_revision     = var.service_instance.inputs.workload_repo_revision
+  eks_admin_role_name        = var.service_instance.inputs.eks_admin_role_name
+  iam_platform_user          = var.service_instance.inputs.iam_platform_user
 
-  kubernetes_version = var.service_instance.inputs.kubernetes_version
+  metrics_server               = var.service_instance.inputs.metrics_server
+  aws_load_balancer_controller = var.service_instance.inputs.aws_load_balancer_controller
+  karpenter                    = var.service_instance.inputs.karpenter
+  aws_for_fluentbit            = var.service_instance.inputs.aws_for_fluentbit
+  cert_manager                 = var.service_instance.inputs.cert_manager
+  cloudwatch_metrics           = var.service_instance.inputs.cloudwatch_metrics
+  external_dns                 = var.service_instance.inputs.external_dns
+  vpa                          = var.service_instance.inputs.vpa
+  kubecost                     = var.service_instance.inputs.kubecost
+  argo_rollouts                = var.service_instance.inputs.argo_rollouts
 
   # Route 53 Ingress Weights
   argocd_route53_weight      = var.service_instance.inputs.argocd_route53_weight
   route53_weight             = var.service_instance.inputs.route53_weight
   ecsfrontend_route53_weight = var.service_instance.inputs.ecsfrontend_route53_weight
 
+  eks_cluster_domain = "${local.environment}.${local.hosted_zone_name}" # for external-dns
+
+
   tag_val_vpc            = local.environment
   tag_val_public_subnet  = "${local.environment}-public-"
   tag_val_private_subnet = "${local.environment}-private-"
 
-  node_group_name            = "managed-ondemand"
-  argocd_secret_manager_name = var.environment.outputs.argocd_secret_manager_name_suffix
+  node_group_name = "managed-ondemand"
+
 
   #---------------------------------------------------------------
   # ARGOCD ADD-ON APPLICATION
   #---------------------------------------------------------------
 
-  addon_application = {
+  addons_application = {
     path                = "chart"
-    repo_url            = "${var.service_instance.inputs.addon_repo_url}"
-    ssh_key_secret_name = "${var.service_instance.inputs.workload_repo_secret}"
+    repo_url            = "${local.addons_repo_url}"
+    ssh_key_secret_name = "${local.workload_repo_secret}"
     add_on_application  = true
   }
 
@@ -65,10 +87,10 @@ locals {
   #---------------------------------------------------------------
 
   workload_application = {
-    path                = "${var.service_instance.inputs.workload_repo_path}" # <-- we could also to blue/green on the workload repo path like: envs/dev-blue / envs/dev-green
-    repo_url            = "${var.service_instance.inputs.workload_repo_url}"
-    target_revision     = "${var.service_instance.inputs.workload_repo_revision}"
-    ssh_key_secret_name = "${var.service_instance.inputs.workload_repo_secret}"
+    path                = "${local.workload_repo_path}" # <-- we could also to blue/green on the workload repo path like: envs/dev-blue / envs/dev-green
+    repo_url            = "${local.workload_repo_url}"
+    target_revision     = "${local.workload_repo_revision}"
+    ssh_key_secret_name = "${local.workload_repo_secret}"
     add_on_application  = false
     values = {
       labels = {
@@ -77,12 +99,12 @@ locals {
       }
       spec = {
         source = {
-          repoURL        = "${var.service_instance.inputs.workload_repo_url}"
-          targetRevision = "${var.service_instance.inputs.workload_repo_revision}"
+          repoURL        = "${local.workload_repo_url}"
+          targetRevision = "${local.workload_repo_revision}"
         }
         blueprint                = "terraform"
         clusterName              = local.name
-        karpenterInstanceProfile = "${local.name}-${local.node_group_name}"
+        karpenterInstanceProfile = module.karpenter.instance_profile_name
         env                      = local.env
         ingress = {
           type                  = "alb"
@@ -100,9 +122,9 @@ locals {
 
   ecsdemo_application = {
     path                = "multi-repo/argo-app-of-apps/dev"
-    repo_url            = "${var.service_instance.inputs.workload_repo_url}"
-    target_revision     = "${var.service_instance.inputs.workload_repo_revision}"
-    ssh_key_secret_name = "${var.service_instance.inputs.workload_repo_secret}"
+    repo_url            = "${local.workload_repo_url}"
+    target_revision     = "${local.workload_repo_revision}"
+    ssh_key_secret_name = "${local.workload_repo_secret}"
     add_on_application  = false
     values = {
       spec = {
@@ -123,6 +145,7 @@ locals {
                 effect   = "NoSchedule"
               }
             ]
+            topologyAwareHints = "true"
             topologySpreadConstraints = [
               {
                 maxSkew           = 1
@@ -149,6 +172,7 @@ locals {
                 effect   = "NoSchedule"
               }
             ]
+            topologyAwareHints = "true"
             topologySpreadConstraints = [
               {
                 maxSkew           = 1
@@ -251,10 +275,6 @@ data "aws_partition" "current" {}
 # Find the user currently in use by AWS
 data "aws_caller_identity" "current" {}
 
-data "aws_eks_cluster_auth" "this" {
-  name = module.eks_blueprints.eks_cluster_id
-}
-
 data "aws_vpc" "vpc" {
   filter {
     name   = "tag:Name"
@@ -273,7 +293,7 @@ data "aws_subnets" "private" {
 resource "aws_ec2_tag" "private_subnets" {
   for_each    = toset(data.aws_subnets.private.ids)
   resource_id = each.value
-  key         = "kubernetes.io/cluster/${var.environment.name}-${local.service}"
+  key         = "kubernetes.io/cluster/${local.environment}-${local.service}"
   value       = "shared"
 }
 
@@ -288,13 +308,13 @@ data "aws_subnets" "public" {
 resource "aws_ec2_tag" "public_subnets" {
   for_each    = toset(data.aws_subnets.public.ids)
   resource_id = each.value
-  key         = "kubernetes.io/cluster/${var.environment.name}-${local.service}"
+  key         = "kubernetes.io/cluster/${local.environment}-${local.service}"
   value       = "shared"
 }
 
 # Create Sub HostedZone four our deployment
 data "aws_route53_zone" "sub" {
-  name = "${local.environment}.${var.environment.outputs.hosted_zone_name}"
+  name = "${local.environment}.${local.hosted_zone_name}"
 }
 
 
@@ -304,6 +324,10 @@ data "aws_secretsmanager_secret" "argocd" {
 
 data "aws_secretsmanager_secret_version" "admin_password_version" {
   secret_id = data.aws_secretsmanager_secret.argocd.id
+}
+
+data "aws_eks_cluster_auth" "this" {
+  name = module.eks_blueprints.eks_cluster_id
 }
 
 module "eks_blueprints" {
@@ -321,9 +345,9 @@ module "eks_blueprints" {
   # List of map_roles
   map_roles = [
     {
-      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.service_instance.inputs.eks_admin_role_name}" # The ARN of the IAM role
-      username = "ops-role"                                                                                                            # The user name within Kubernetes to map to the IAM role
-      groups   = ["system:masters"]                                                                                                    # A list of groups within Kubernetes to which the role is mapped; Checkout K8s Role and Rolebindings
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.eks_admin_role_name}" # The ARN of the IAM role
+      username = "ops-role"                                                                                      # The user name within Kubernetes to map to the IAM role
+      groups   = ["system:masters"]                                                                              # A list of groups within Kubernetes to which the role is mapped; Checkout K8s Role and Rolebindings
     }
   ]
 
@@ -341,8 +365,8 @@ module "eks_blueprints" {
     admin = {
       users = [
         data.aws_caller_identity.current.arn,
-        "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:user/${var.service_instance.inputs.iam_platform_user}",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.service_instance.inputs.eks_admin_role_name}"
+        "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:user/${local.iam_platform_user}",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.eks_admin_role_name}"
       ]
     }
   }
@@ -374,10 +398,6 @@ module "eks_blueprints" {
         "appName"                                 = "burnham-team-app",
         "projectName"                             = "project-burnham",
         "environment"                             = "dev",
-        "domain"                                  = "example",
-        "uuid"                                    = "example",
-        "billingCode"                             = "example",
-        "branch"                                  = "example"
       }
       "quota" = {
         "requests.cpu"    = "20k",
@@ -453,7 +473,7 @@ module "eks_blueprints" {
         "requests.memory" = "20Gi",
         "limits.cpu"      = "20000m",
         "limits.memory"   = "50Gi",
-        "pods"            = "10",
+        "pods"            = "20",
         "secrets"         = "10",
         "services"        = "10"
       }
@@ -474,7 +494,7 @@ module "eks_blueprints" {
         "requests.memory" = "20Gi",
         "limits.cpu"      = "20000m",
         "limits.memory"   = "50Gi",
-        "pods"            = "10",
+        "pods"            = "20",
         "secrets"         = "10",
         "services"        = "10"
       }
@@ -510,7 +530,7 @@ module "kubernetes_addons" {
   argocd_manage_add_ons = true # Indicates that ArgoCD is responsible for managing/deploying Add-ons.
 
   argocd_applications = {
-    addons    = local.addon_application
+    addons    = local.addons_application
     workloads = local.workload_application
     ecsdemo   = local.ecsdemo_application
   }
@@ -570,18 +590,18 @@ module "kubernetes_addons" {
   # https://aws-ia.github.io/terraform-aws-eks-blueprints/add-ons/
   #---------------------------------------------------------------
 
-  enable_metrics_server               = var.service_instance.inputs.metrics_server
-  enable_aws_load_balancer_controller = var.service_instance.inputs.aws_load_balancer_controller
+  enable_metrics_server               = local.metrics_server
+  enable_aws_load_balancer_controller = local.aws_load_balancer_controller
   aws_load_balancer_controller_helm_config = {
     service_account = "aws-lb-sa"
   }
-  enable_karpenter              = var.service_instance.inputs.karpenter
-  enable_aws_for_fluentbit      = var.service_instance.inputs.aws_for_fluentbit
-  enable_cert_manager           = var.service_instance.inputs.cert_manager
-  enable_aws_cloudwatch_metrics = var.service_instance.inputs.cloudwatch_metrics
+  enable_karpenter              = local.karpenter
+  enable_aws_for_fluentbit      = local.aws_for_fluentbit
+  enable_cert_manager           = local.cert_manager
+  enable_aws_cloudwatch_metrics = local.cloudwatch_metrics
 
 
-  enable_external_dns = var.service_instance.inputs.external_dns
+  enable_external_dns = local.external_dns
   external_dns_helm_config = {
     txtOwnerId   = local.name
     zoneIdFilter = data.aws_route53_zone.sub.zone_id # Note: this uses GitOpsBridge
@@ -591,9 +611,9 @@ module "kubernetes_addons" {
 
 
 
-  enable_vpa           = var.service_instance.inputs.vpa
-  enable_kubecost      = var.service_instance.inputs.kubecost
-  enable_argo_rollouts = var.service_instance.inputs.argo_rollouts
+  enable_vpa           = local.vpa
+  enable_kubecost      = local.kubecost
+  enable_argo_rollouts = local.argo_rollouts
 
 
 }

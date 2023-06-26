@@ -1,0 +1,13 @@
+{
+  "environment": {
+    "name": "eks-environment-codebuild",
+    "inputs": {
+      "aws_region": "eu-west-1",
+      "vpc_cidr": "10.0.0.0/16",
+      "argocd_secret_manager_name_suffix": "argocd-admin-secret",
+      "hosted_zone_name": "example.com",
+      "tf_state_bucket": "aws-proton-terraform-bucket-xxxxx",
+      "tf_state_bucket_region": "eu-west-1"
+    }
+  }
+}
