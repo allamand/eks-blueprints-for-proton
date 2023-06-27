@@ -55,5 +55,14 @@ plan:
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
 	terraform plan -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
 
-plan2: load-functions
+output:
+	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
+	terraform output
+
+setup-credentials:
+	source ../../../../scripts/bash/functions.sh && setup_aws_credentials
+	export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_EXPIRATION
+
+
+plan2: setup-credentials load-functions
 	terraform plan -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
