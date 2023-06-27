@@ -2,38 +2,34 @@
 
 ### Building Infrastructure as code
 
-If you want you can go to the directory created by the Proton PR and then point to the Terraform S3 bucket state:
+If you want you can go to the template environment directory and then point to the Terraform S3 bucket state:
 
+> You first need to create the proton-inputs.json file as it will be created by AWS Proton. You can either find the content of the file in the CodeBuild logs as it is printed there, or you can recompute one from the `proton-inputs-example.json` file.
+
+First Source helping script
 ```bash
-export TERRAFORM_BUCKET=$(cat ../env_config.json| jq ".[].state_bucket" -r)
-export CLUSTER_NAME=$(cat proton.auto.tfvars.json | jq ".environment.name" -r)
-echo "$CLUSTER_NAME for $TERRAFORM_BUCKET"
-terraform init -backend-config="bucket=$TERRAFORM_BUCKET" -backend-config="key=$CLUSTER_NAME/terraform.tfstate" -backend-config="region=$AWS_REGION"
+source ../../../../scripts/bash/functions.sh
+```
+
+Then configure terraform
+```bash
+configure_terraform_init
 ```
 
 Then you can work locally if you have enough IAM rights to create associated AWS ressources.
 For doing that, you can assume the role you define in the env_config.json
 
-GitHubAppRunner-Terraform
+
+Retrieve Credentials used by the AWS Proton CodeBuild pipeline (GitHubAppRunner-Terraform)
 
 ```bash
-PLATFORM_ROLE_ARN=$(cat ../env_config.json | jq '.[].role' -r)
-echo "PLATFORM_ROLE_ARN is $PLATFORM_ROLE_ARN"
-CREDENTIALS=$(aws sts assume-role --duration-seconds 3600 --role-arn $PLATFORM_ROLE_ARN --role-session-name eks)
-export AWS_ACCESS_KEY_ID="$(echo ${CREDENTIALS} | jq -r '.Credentials.AccessKeyId')"
-export AWS_SECRET_ACCESS_KEY="$(echo ${CREDENTIALS} | jq -r '.Credentials.SecretAccessKey')"
-export AWS_SESSION_TOKEN="$(echo ${CREDENTIALS} | jq -r '.Credentials.SessionToken')"
-export AWS_EXPIRATION=$(echo ${CREDENTIALS} | jq -r '.Credentials.Expiration')
-aws sts get-caller-identity
+setup_aws_credentials
 ```
 
 Deploy
 
 ```bash
-terraform apply -target="module.vpc" -auto-approve -var="aws_region=$AWS_REGION"
-terraform apply -target="module.eks_blueprints" -auto-approve -var="aws_region=$AWS_REGION"
-terraform apply -target="module.kubernetes_addons" -auto-approve -var="aws_region=$AWS_REGION"
-terraform apply -auto-approve -var="aws_region=$AWS_REGION"
+terraform apply -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve
 ```
 
 ### Configuring Argo CLI

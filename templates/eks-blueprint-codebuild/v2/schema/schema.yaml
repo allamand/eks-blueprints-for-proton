@@ -10,7 +10,7 @@ schema:
         - iam_platform_user
         - eks_admin_role_name
         - kubernetes_version
-        - addon_repo_url
+        - addons_repo_url
         - workload_repo_url
         - workload_repo_secret
         - workload_repo_revision
@@ -26,7 +26,7 @@ schema:
           type: string
           description: 'IAM Role for cluster access'
           default: 'demo3'
-        addon_repo_url:
+        addons_repo_url:
           title: 'GitHub Addons repo'
           type: string
           description: 'GitHub Repo for managing Kuberbetes Addons'
