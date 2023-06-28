@@ -36,7 +36,9 @@ infrastructure:
           - terraform apply -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve
 
           # Connect to EKS
+          - aws sts get-caller-identity
           - cmd=$(terraform output | grep platform_teams_configure_kubectl | awk -F "configure_kubectl = " '{print $2}' | cut -d\" -f2)
+          - echo $cmd
           - eval $cmd
           - kubectl get deployments -A
 
@@ -67,7 +69,9 @@ infrastructure:
           - terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="region=${TF_STATE_BUCKET_REGION}" -backend-config="key=${KEY}.tfstate"
 
           # Connect to EKS
+          - aws sts get-caller-identity
           - cmd=$(terraform output | grep platform_teams_configure_kubectl | awk -F "configure_kubectl = " '{print $2}' | cut -d\" -f2)
+          - echo $cmd
           - eval $cmd
           # 1. first remove applications protections
           - kubectl delete pdb --all -A
