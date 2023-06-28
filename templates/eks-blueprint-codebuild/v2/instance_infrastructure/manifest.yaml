@@ -30,7 +30,7 @@ infrastructure:
           - cat proton-inputs.json | jq "."
 
           # provision, storing state in an s3 bucket using the proton environment.service.instance as the key
-          - echo "Deploying with -backend-config=bucket=${TF_STATE_BUCKET} -backend-config=region=${TF_STATE_BUCKET_REGION} -backend-config=key=${KEY}.tfstate
+          - echo "Deploying with -backend-config=bucket=${TF_STATE_BUCKET} -backend-config=region=${TF_STATE_BUCKET_REGION} -backend-config=key=${KEY}.tfstate"
           - set -x
           - terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="region=${TF_STATE_BUCKET_REGION}" -backend-config="key=${KEY}.tfstate"
           - terraform apply -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve
