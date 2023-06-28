@@ -10,6 +10,7 @@ infrastructure:
             TF_VERSION: 1.4.0
 
         provision:
+          - set -x # Activate DEBUG
           - echo "Proton Provisioning for PROTON_SVC=$(cat proton-inputs.json | jq '.service.name' -r) in PROTON_ENV=$(cat proton-inputs.json | jq '.environment.name' -r)"
 
           # install terraform cli
@@ -42,6 +43,7 @@ infrastructure:
           - chmod +x ./output.sh && ./output.sh
 
         deprovision:
+          - set -x # Activate DEBUG
           - echo "Proton Deprovisioning for PROTON_SVC=$(cat proton-inputs.json | jq '.service.name' -r) in PROTON_ENV=$(cat proton-inputs.json | jq '.environment.name' -r)"
 
           # install terraform cli
