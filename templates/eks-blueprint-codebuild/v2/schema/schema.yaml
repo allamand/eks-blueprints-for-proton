@@ -78,7 +78,7 @@ schema:
           title: 'Kubernetes version'
           type: string
           enum: ['1.22', '1.23', '1.24', '1.25', '1.26', '1.27']
-          default: '1.25'
+          default: '1.26'
 
         # aws_load_balancer_controller:
         #   title: 'Enable AWS Load Balancer Controller Add-On'

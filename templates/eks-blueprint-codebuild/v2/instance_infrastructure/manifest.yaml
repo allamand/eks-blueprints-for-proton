@@ -40,6 +40,8 @@ infrastructure:
           - cmd=$(terraform output | grep platform_teams_configure_kubectl | awk -F "configure_kubectl = " '{print $2}' | cut -d\" -f2)
           - echo $cmd
           - eval $cmd
+          - set -x
+          - aws eks --region ${AWS_REGION} update-kubeconfig --name ${PROTON_ENV}-${PROTON_SVC}
           - kubectl get deployments -A
 
           # pass terraform output to proton
