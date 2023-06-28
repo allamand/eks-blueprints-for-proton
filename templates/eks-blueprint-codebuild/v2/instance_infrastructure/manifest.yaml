@@ -34,7 +34,7 @@ infrastructure:
           - terraform apply -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve
 
           # Connect to EKS
-          - cmd=$(terraform output | grep eks | awk -F "configure_kubectl = " '{print $2}' | cut -d\" -f2)
+          - cmd=$(terraform output | grep platform_teams_configure_kubectl | awk -F "configure_kubectl = " '{print $2}' | cut -d\" -f2)
           - eval $cmd
           - kubectl get deployments -A
 

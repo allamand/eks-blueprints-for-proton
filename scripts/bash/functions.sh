@@ -40,5 +40,7 @@ configure_terraform_init()
   export PROTON_SVC_INSTANCE=$(cat proton-inputs.json | jq '.service_instance.name' -r)
   export KEY=${PROTON_ENV}.${PROTON_SVC}.${PROTON_SVC_INSTANCE}
   [[ -z $PROTON_ENV || -z $PROTON_SVC || -z $PROTON_SVC_INSTANCE ]] && echo "Error: One or more variables are missing or empty" && return 1
+  set -x
   terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="region=${TF_STATE_BUCKET_REGION}" -backend-config="key=${KEY}.tfstate"
+  set +x
 }

@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .ONESHELL:
 
-.PHONY: apply destroy plan print setup-credentials
+.PHONY: format check clean clean-finalizers verify apply destroy plan print setup-credentials
 
 format:
 	terraform fmt
@@ -21,8 +21,6 @@ clean-finalizers:
 	echo $$res
 
 verify:
-	cp sample.service_instance.variables.tf.local sample.service_instance.variables.tf
-	terraform init -backend=false -upgrade
 	terraform validate -no-color
 
 ## Load Environment ##
@@ -43,12 +41,15 @@ print: load-functions
 	@echo PROTON_ENV=$(PROTON_ENV) AWS_REGION=$(AWS_REGION) TF_STATE_BUCKET=$(TF_STATE_BUCKET) TF_STATE_BUCKET_REGION=$(TF_STATE_BUCKET_REGION) PROTON_SVC=$(PROTON_SVC) PROTON_SVC_INSTANCE=$(PROTON_SVC_INSTANCE) KEY=$(KEY)
 
 init: print
+	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
 	terraform init -backend-config="bucket=$(TF_STATE_BUCKET)" -backend-config="key=$(KEY).tfstate" -backend-config="region=$(TF_STATE_BUCKET_REGION)" -upgrade -reconfigure
 
 apply: load-functions print
+	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
 	terraform apply -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
 
 destroy: load-functions
+	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
 	terraform destroy -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
 
 plan:
