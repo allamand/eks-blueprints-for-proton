@@ -1,4 +1,5 @@
 compatible_environments:
   - eks-environment-codebuild:1
+  - eks-core-infra-codebuild:1
 supported_component_sources:
   - DIRECTLY_DEFINED

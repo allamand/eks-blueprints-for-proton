@@ -48,9 +48,19 @@ apply: load-functions print
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
 	terraform apply -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
 
-destroy: load-functions
+destroy-addons: load-functions
+	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
+	terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.eks_cluster.module.kubernetes_addons"
+
+destroy-eks: load-functions
+	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
+	terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.eks_cluster.module.eks"
+
+destroy-final: load-functions
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
 	terraform destroy -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
+
+destroy: destroy-addons destroy-eks destroy-final
 
 plan:
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
