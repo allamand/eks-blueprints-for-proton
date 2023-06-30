@@ -42,8 +42,10 @@ provider "kubectl" {
 module "eks_cluster" {
   source = "./modules/eks_cluster"
 
-  aws_region      = var.aws_region
-  service_name    = var.service.name
+  aws_region = var.aws_region
+  #We uses service_instance name here because in proton we can't have 2 services with same name
+  #service_name    = var.service.name
+  service_name    = var.service_instance.name
   cluster_version = var.service_instance.inputs.kubernetes_version
 
   argocd_route53_weight      = var.service_instance.inputs.argocd_route53_weight

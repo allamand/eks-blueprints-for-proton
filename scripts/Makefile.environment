@@ -26,12 +26,10 @@ verify:
 ## Load Environment ##
 PROTON_INPUTS?=proton-inputs.json
 PROTON_ENV != cat $(PROTON_INPUTS) | jq '.environment.name' -r
-AWS_REGION != cat $(PROTON_INPUTS) | jq '.environment.outputs.aws_region' -r
-TF_STATE_BUCKET != cat $(PROTON_INPUTS) | jq '.environment.outputs.tf_state_bucket' -r
-TF_STATE_BUCKET_REGION != cat $(PROTON_INPUTS) | jq '.environment.outputs.tf_state_bucket_region' -r
-PROTON_SVC != cat $(PROTON_INPUTS) | jq '.service.name' -r
-PROTON_SVC_INSTANCE != cat $(PROTON_INPUTS) | jq '.service_instance.name' -r
-KEY=$(PROTON_ENV).$(PROTON_SVC).$(PROTON_SVC_INSTANCE)
+AWS_REGION != cat $(PROTON_INPUTS) | jq '.environment.inputs.aws_region' -r
+TF_STATE_BUCKET != cat $(PROTON_INPUTS) | jq '.environment.inputs.tf_state_bucket' -r
+TF_STATE_BUCKET_REGION != cat $(PROTON_INPUTS) | jq '.environment.inputs.tf_state_bucket_region' -r
+KEY=$(PROTON_ENV)
 
 load-functions:
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
@@ -46,19 +44,19 @@ init: print
 
 apply: load-functions print
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
-	terraform apply -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)" --auto-approve
+	terraform apply -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
 
 destroy-addons: load-functions
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
-	terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.kubernetes_addons"
+	terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.eks_cluster.module.kubernetes_addons"
 
 destroy-eks: load-functions
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
-	terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.eks_blueprints"
+	terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.eks_cluster.module.eks"
 
 destroy-final: load-functions
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
-	terraform destroy -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)" -auto-approve
+	terraform destroy -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
 
 destroy: destroy-addons destroy-eks destroy-final
 

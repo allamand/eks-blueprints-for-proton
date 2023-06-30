@@ -68,8 +68,8 @@ infrastructure:
           # 1. first remove applications protections
           - kubectl delete pdb --all -A
           # 2. Then remove ArgoCD applications
-          - kubectl delete applications -n argocd workloads
-          - kubectl delete applications -n argocd ecsdemo
+          - kubectl delete applications -n argocd workloads || true
+          - kubectl delete applications -n argocd ecsdemo || true
 
           # destroy environment
           - terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.kubernetes_addons"

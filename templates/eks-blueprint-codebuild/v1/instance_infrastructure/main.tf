@@ -104,7 +104,7 @@ locals {
         }
         blueprint                = "terraform"
         clusterName              = local.name
-        karpenterInstanceProfile = module.karpenter.instance_profile_name
+        karpenterInstanceProfile = "${local.name}-${local.node_group_name}"
         env                      = local.env
         ingress = {
           type                  = "alb"

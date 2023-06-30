@@ -11,14 +11,12 @@ setup_aws_credentials() {
     echo "Error: env_config.json file not found. in $CONFIG_FILE"
     return 1
   fi
-
   # Read role ARN from the file
   PLATFORM_ROLE_ARN=$(jq '.[].role' -r "$CONFIG_FILE")
   echo "PLATFORM_ROLE_ARN is $PLATFORM_ROLE_ARN"
 
   # Assume the role
   CREDENTIALS=$(aws sts assume-role --duration-seconds 3600 --role-arn "$PLATFORM_ROLE_ARN" --role-session-name eks)
-
   # Set the AWS credentials as environment variables
   export AWS_ACCESS_KEY_ID=$(echo "$CREDENTIALS" | jq -r '.Credentials.AccessKeyId')
   export AWS_SECRET_ACCESS_KEY=$(echo "$CREDENTIALS" | jq -r '.Credentials.SecretAccessKey')
