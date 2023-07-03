@@ -32,6 +32,7 @@ TF_STATE_BUCKET_REGION != cat $(PROTON_INPUTS) | jq '.environment.outputs.tf_sta
 PROTON_SVC != cat $(PROTON_INPUTS) | jq '.service.name' -r
 PROTON_SVC_INSTANCE != cat $(PROTON_INPUTS) | jq '.service_instance.name' -r
 KEY=$(PROTON_ENV).$(PROTON_SVC).$(PROTON_SVC_INSTANCE)
+CLUSTER=$(PROTON_ENV)-$(PROTON_SVC_INSTANCE)
 
 load-functions:
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
@@ -77,3 +78,20 @@ setup-credentials:
 
 plan2: setup-credentials load-functions
 	terraform plan -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
+
+
+clean-eks:
+	echo $(CLUSTER)
+	#aws kms delete-alias --alias-name alias/eks/$(CLUSTER)
+	aws kms delete-alias --alias-name alias/$(CLUSTER)-cw-fluent-bit
+	#aws iam delete-role --role-name 
+	python3 delete_role.py $(CLUSTER)-aws-node-irsa
+	python3 delete_role.py $(CLUSTER)-cloudwatch-agent-irsa
+	python3 delete_policy.py $(CLUSTER)-aws-ebs-csi-driver-irsa
+	python3 delete_policy.py $(CLUSTER)-fluentbit
+	python3 delete_policy.py $(CLUSTER)-lb-irsa
+	python3 delete_policy.py $(CLUSTER)-cert-manager-irsa
+	python3 delete_policy.py $(CLUSTER)-external-dns-irsa
+	python3 delete_policy.py $(CLUSTER)-karpenter
+	#python3 delete_policy.py $(CLUSTER)-
+	#python3 delete_policy.py $(CLUSTER)-

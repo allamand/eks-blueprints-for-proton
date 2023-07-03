@@ -3,5 +3,4 @@ proton.environment.variables.tf
 .terraform.lock.hcl
 sample.service_instance.variables.tf
 proton-inputs.json
-proton-inputs-blue.json
-proton-inputs-green.json
+proton-inputs-*.json
