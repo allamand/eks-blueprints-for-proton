@@ -12,13 +12,16 @@ check:
 applications != kubectl get applications -n argocd -o json | jq ".items[].metadata.name" -r | grep -v addons
 
 clean:
-	kubectl patch -n argocd applications $(applications) -p '{"metadata":{"finalizers":null}}' --type=merge
+	@echo delete $(applications)
+	@kubectl delete applications -n argocd workloads
+	@kubectl delete applications -n argocd ecsdemo	
+	@make destroy clean-eks
 
 clean-finalizers:
-	echo $(applications)
+	@echo $(applications)
 	#echo "kubectl patch -n argocd applications $(applications) -p '{\"metadata\":{\"finalizers\":null}}' --type=merge"
-	res=$$(kubectl patch -n argocd applications $(applications) -p '{"metadata":{"finalizers":null}}' --type=merge)
-	echo $$res
+	@res=$$(kubectl patch -n argocd applications $(applications) -p '{"metadata":{"finalizers":null}}' --type=merge)
+	@echo $$res
 
 verify:
 	terraform validate -no-color
@@ -47,7 +50,7 @@ init: print
 
 apply: load-functions print
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
-	terraform apply -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
+	terraform apply -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)" -auto-approve
 
 destroy-addons: load-functions
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
@@ -59,7 +62,7 @@ destroy-eks: load-functions
 
 destroy-final: load-functions
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
-	terraform destroy -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
+	terraform destroy -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)" -auto-approve
 
 destroy: destroy-addons destroy-eks destroy-final
 
@@ -79,19 +82,27 @@ setup-credentials:
 plan2: setup-credentials load-functions
 	terraform plan -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
 
+clean-eks-kms-key:
+	@aws kms delete-alias --alias-name alias/eks/$(CLUSTER)
 
 clean-eks:
-	echo $(CLUSTER)
-	#aws kms delete-alias --alias-name alias/eks/$(CLUSTER)
-	aws kms delete-alias --alias-name alias/$(CLUSTER)-cw-fluent-bit
+	@echo $(CLUSTER)
+	@aws kms delete-alias --alias-name alias/$(CLUSTER)-cw-fluent-bit
 	#aws iam delete-role --role-name 
-	python3 delete_role.py $(CLUSTER)-aws-node-irsa
-	python3 delete_role.py $(CLUSTER)-cloudwatch-agent-irsa
-	python3 delete_policy.py $(CLUSTER)-aws-ebs-csi-driver-irsa
-	python3 delete_policy.py $(CLUSTER)-fluentbit
-	python3 delete_policy.py $(CLUSTER)-lb-irsa
-	python3 delete_policy.py $(CLUSTER)-cert-manager-irsa
-	python3 delete_policy.py $(CLUSTER)-external-dns-irsa
-	python3 delete_policy.py $(CLUSTER)-karpenter
+	@python3 delete_role.py $(CLUSTER)-aws-node-irsa
+	@python3 delete_role.py $(CLUSTER)-cloudwatch-agent-irsa
+	#python3 delete_role.py $(CLUSTER)-
+	@python3 delete_role.py $(CLUSTER)-aws-lb-sa-irsa
+	echo python3 delete_role.py $(CLUSTER)-karpenter-irsa
+	@python3 delete_role.py $(CLUSTER)-aws-for-fluent-bit-sa-irsa
+	@python3 delete_role.py $(CLUSTER)-ebs-csi-controller-sa-irsa
+	@python3 delete_role.py $(CLUSTER)-external-dns-sa-irsa
+	@python3 delete_role.py $(CLUSTER)-cert-manager-irsa
+	@python3 delete_policy.py $(CLUSTER)-aws-ebs-csi-driver-irsa
+	@python3 delete_policy.py $(CLUSTER)-fluentbit
+	@python3 delete_policy.py $(CLUSTER)-lb-irsa
+	@python3 delete_policy.py $(CLUSTER)-cert-manager-irsa
+	@python3 delete_policy.py $(CLUSTER)-external-dns-irsa
+	@python3 delete_policy.py $(CLUSTER)-karpenter
 	#python3 delete_policy.py $(CLUSTER)-
 	#python3 delete_policy.py $(CLUSTER)-

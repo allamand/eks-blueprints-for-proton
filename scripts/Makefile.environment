@@ -1,4 +1,4 @@
-SHELL := /bin/bash
+k SHELL := /bin/bash
 .ONESHELL:
 
 .PHONY: format check clean clean-finalizers verify apply destroy plan print setup-credentials

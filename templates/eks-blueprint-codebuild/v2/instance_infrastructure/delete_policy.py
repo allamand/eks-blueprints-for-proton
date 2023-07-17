@@ -5,11 +5,12 @@ import json
 def run_command(cmd):
     cmd_str = " ".join(cmd)
     print(f"Command: {cmd_str}")
-    subprocess.run(cmd, check=True)
+    output = subprocess.check_output(cmd)
+    return output.decode("utf-8").strip()
 
 def list_entities_for_policy(policy_arn):
     cmd = ["aws", "iam", "list-entities-for-policy", "--policy-arn", policy_arn]
-    output = subprocess.check_output(cmd)
+    output = run_command(cmd)
     entities = json.loads(output)
     return entities
 
@@ -23,8 +24,7 @@ def delete_policy(policy_arn):
 
 def delete_iam_policy(policy_name):
     cmd = ["aws", "iam", "list-policies", "--query", "Policies[?PolicyName=='{}'].Arn".format(policy_name), "--output", "text"]
-    output = subprocess.check_output(cmd)
-    policy_arn = output.decode("utf-8").strip()
+    policy_arn = run_command(cmd)
     if not policy_arn:
         print(f"Policy '{policy_name}' not found.")
         return

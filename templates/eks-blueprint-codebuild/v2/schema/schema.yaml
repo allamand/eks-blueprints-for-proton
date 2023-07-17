@@ -20,7 +20,7 @@ schema:
           title: 'iam_platform_user'
           type: string
           description: 'Additional IAM role to be admin in the cluster'
-          default: 'platform-user'
+          default: 'cdkmb3'
         eks_admin_role_name:
           title: 'EKS Admin Additional Role Name'
           type: string
