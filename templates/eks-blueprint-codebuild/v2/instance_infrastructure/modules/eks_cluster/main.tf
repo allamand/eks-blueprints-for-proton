@@ -392,6 +392,7 @@ module "eks_blueprints_platform_teams" {
     "elbv2.k8s.aws/pod-readiness-gate-inject" = "enabled",
     "appName"                                 = "platform-team-app",
     "projectName"                             = "project-platform",
+    "pod-security.kubernetes.io/enforce"      = "restricted",
   }
 
   annotations = {
@@ -451,6 +452,7 @@ module "eks_blueprints_dev_teams" {
         "elbv2.k8s.aws/pod-readiness-gate-inject" = "enabled",
         "appName"                                 = "burnham-team-app",
         "projectName"                             = "project-burnham",
+        "pod-security.kubernetes.io/enforce"      = "restricted",
       }
     }
     riker = {
@@ -616,7 +618,7 @@ module "eks_blueprints_ecsdemo_teams" {
 }
 
 module "kubernetes_addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.32.0/modules/kubernetes-addons"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.32.1/modules/kubernetes-addons"
 
   eks_cluster_id     = module.eks.cluster_name
   eks_cluster_domain = local.eks_cluster_domain
