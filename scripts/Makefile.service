@@ -48,7 +48,7 @@ init: print
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
 	terraform init -backend-config="bucket=$(TF_STATE_BUCKET)" -backend-config="key=$(KEY).tfstate" -backend-config="region=$(TF_STATE_BUCKET_REGION)" -upgrade -reconfigure
 
-apply: load-functions print
+apply: init load-functions print
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
 	terraform apply -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)" -auto-approve
 
@@ -66,7 +66,7 @@ destroy-final: load-functions
 
 destroy: destroy-addons destroy-eks destroy-final
 
-plan:
+plan: init
 	@source ../../../../scripts/bash/functions.sh && declare -F && setup_aws_credentials
 	terraform plan -var-file=$(PROTON_INPUTS) -var="aws_region=$(AWS_REGION)"
 

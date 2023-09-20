@@ -1,0 +1,99 @@
+schema:
+  format:
+    openapi: '3.0.0'
+  service_input_type: 'ServiceInput'
+  types:
+    ServiceInput:
+      type: object
+      description: 'Input properties for eks service.'
+      required:
+        - eks_admin_role_name
+        - kubernetes_version
+        - gitops_addons_org
+        - gitops_addons_repo
+        - gitops_addons_path
+        - gitops_addons_revision
+        - gitops_workloads_org
+        - gitops_workloads_repo
+        - gitops_workloads_path
+        - gitops_workloads_revision
+      properties:
+        eks_admin_role_name:
+          title: 'EKS Admin Additional Role Name'
+          type: string
+          description: 'IAM Role for cluster access'
+          default: 'demo3'
+        gitops_addons_org:
+          title: 'GitHub Addons org'
+          type: string
+          description: 'GitHub Org for managing Kuberbetes Addons'
+          default: 'git@github.com:aws-samples/'
+        gitops_addons_repo:
+          title: 'GitHub Addons repo'
+          type: string
+          description: 'GitHub Repo for managing Kuberbetes Addons'
+          default: 'eks-blueprints-add-ons'
+        gitops_addons_path:
+          title: 'GitHub Addons path'
+          type: string
+          description: 'GitHub path for managing Kuberbetes Addons'
+          default: 'argocd/bootstrap/control-plane/addons'
+        gitops_addons_revision:
+          title: 'GitHub Addons revision'
+          type: string
+          description: 'GitHub revision for managing Kuberbetes Addons'
+          default: 'HEAD'
+
+        gitops_workloads_org:
+          title: 'GitHub ArgoCD Workloads org'
+          type: string
+          description: 'GitHub org for managing Kuberbetes ArgoCD Workloads'
+          default: 'git@github.com:seb-demo'
+        gitops_workloads_repo:
+          title: 'GitHub ArgoCD Workloads repo'
+          type: string
+          description: 'GitHub repo for managing Kuberbetes ArgoCD Workloads'
+          default: 'eks-blueprints-workloads.git'
+        gitops_workloads_path:
+          title: 'GitHub ArgoCD Workloads org'
+          type: string
+          description: 'GitHub path for managing Kuberbetes ArgoCD Workloads'
+          default: 'envs/dev'
+        gitops_workloads_revision:
+          title: 'GitHub ArgoCD Workloads revision'
+          type: string
+          description: 'GitHub org for managing Kuberbetes ArgoCD Workloads'
+          default: 'working_eks_blue'
+
+
+
+        aws_secret_manager_git_private_ssh_key_name:
+          title: 'GitHub ArgoCD Workloads repo secret'
+          type: string
+          description: 'Secret Manager secret name for hosting Github SSH-Key to Access private repository'
+          default: 'github-blueprint-ssh-key'
+
+        argocd_route53_weight:
+          title: 'Route 53 Weight for ArgoCD'
+          type: string
+          description: 'Weight for the Route 53 weighted record for the ArgoCD UI'
+          default: '100'
+
+        ecsfrontend_route53_weight:
+          title: 'Route 53 Weight for the ecsdemo applications'
+          type: string
+          description: 'Weight for the Route 53 weighted record for ecsdemo applications'
+          default: '100'
+
+        route53_weight:
+          title: 'Route 53 Weight for other applications'
+          type: string
+          description: 'Weight for the Route 53 weighted record for others applications'
+          default: '100'
+
+        kubernetes_version:
+          title: 'Kubernetes version'
+          type: string
+          enum: ['1.22', '1.23', '1.24', '1.25', '1.26', '1.27']
+          default: '1.26'
+
