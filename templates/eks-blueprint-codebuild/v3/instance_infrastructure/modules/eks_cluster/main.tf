@@ -13,7 +13,7 @@ locals {
 
   # Mapping
   hosted_zone_name                            = var.hosted_zone_name
-  ingress_type                                = var.ingress_type
+  ingress_type                                = "alb" #var.ingress_type
   aws_secret_manager_git_private_ssh_key_name = var.aws_secret_manager_git_private_ssh_key_name
   cluster_version                             = var.cluster_version
   argocd_secret_manager_name                  = var.argocd_secret_manager_name_suffix

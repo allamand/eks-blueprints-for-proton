@@ -57,7 +57,7 @@ module "eks_cluster" {
 
   aws_secret_manager_git_private_ssh_key_name = var.service_instance.inputs.aws_secret_manager_git_private_ssh_key_name
   argocd_secret_manager_name_suffix           = var.service_instance.inputs.argocd_secret_manager_name_suffix
-  ingress_type                                = "alb" #var.service_instance.inputs.ingress_type
+  #ingress_type                                = "alb" #var.service_instance.inputs.ingress_type
 
   gitops_addons_org      = var.service_instance.inputs.gitops_addons_org
   gitops_addons_repo     = var.service_instance.inputs.gitops_addons_repo
