@@ -549,42 +549,18 @@ resource "kubernetes_secret" "git_secrets" {
 }
 
 ################################################################################
-# GitOps Bridge: Metadata
-################################################################################
-module "gitops_bridge_metadata" {
-  source = "github.com/gitops-bridge-dev/gitops-bridge-argocd-metadata-terraform?ref=v1.0.0"
-
-  cluster_name = module.eks.cluster_name
-  metadata     = local.addons_metadata
-  environment  = local.environment
-  addons       = local.addons
-}
-
-################################################################################
 # GitOps Bridge: Bootstrap
 ################################################################################
-
 module "gitops_bridge_bootstrap" {
-  source = "github.com/gitops-bridge-dev/gitops-bridge-argocd-bootstrap-terraform?ref=HEAD"
+  source = "github.com/gitops-bridge-dev/gitops-bridge-argocd-bootstrap-terraform?ref=v2.0.0"
 
-  argocd_cluster               = module.gitops_bridge_metadata.argocd
-  argocd_bootstrap_app_of_apps = local.argocd_bootstrap_app_of_apps
-  #argocd                       = { create_namespace = false }
-  argocd = {
-    create_namespace = false
-    set = [
-      {
-        name  = "server.service.type"
-        value = "LoadBalancer"
-      }
-    ]
-    set_sensitive = [
-      {
-        name  = "configs.secret.argocdServerAdminPassword"
-        value = bcrypt(data.aws_secretsmanager_secret_version.admin_password_version.secret_string)
-      }
-    ]
+  cluster = {
+    cluster_name = module.eks.cluster_name
+    environment  = local.environment
+    metadata     = local.addons_metadata
+    addons       = local.addons
   }
+  apps       = local.argocd_bootstrap_app_of_apps
   depends_on = [kubernetes_secret.git_secrets]
 }
 
