@@ -37,10 +37,10 @@ output "access_argocd" {
   description = "ArgoCD Access"
   value       = <<-EOT
     export KUBECONFIG="/tmp/${module.eks.cluster_name}"
-    aws eks --region ${local.region} update-kubeconfig --name ${module.eks.cluster_name}
+    aws eks --region ${var.aws_region} update-kubeconfig --name ${module.eks.cluster_name}
     echo "ArgoCD URL: https://$(kubectl get svc -n argocd argo-cd-argocd-server -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
     echo "ArgoCD Username: admin"
-    echo "ArgoCD Password: $(aws secretsmanager get-secret-value --secret-id argocd-admin-secret.${local.environment} --query SecretString --output text --region ${local.region})"
+    echo "ArgoCD Password: $(aws secretsmanager get-secret-value --secret-id argocd-admin-secret.${local.environment} --query SecretString --output text --region ${var.aws_region})"
   EOT
 }
 
