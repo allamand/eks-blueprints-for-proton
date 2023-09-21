@@ -89,7 +89,7 @@ locals {
     module.eks_blueprints_addons.gitops_metadata, # eks blueprints addons automatically expose metadatas
     {
       aws_cluster_name = module.eks.cluster_name
-      aws_region       = local.region
+      aws_region       = var.aws_region
       aws_account_id   = data.aws_caller_identity.current.account_id
       aws_vpc_id       = data.aws_vpc.vpc.id
       cluster_endpoint = module.eks.cluster_endpoint
