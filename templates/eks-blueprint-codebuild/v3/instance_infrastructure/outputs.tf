@@ -32,8 +32,9 @@ output "access_argocd" {
   value       = module.eks_cluster.access_argocd
 }
 
-output "gitops_metadata" {
-  description = "export gitops_metadata"
-  value       = module.eks_cluster.gitops_metadata
-  sensitive   = true
-}
+#Proton does not like list of outputs
+# output "gitops_metadata" {
+#   description = "export gitops_metadata"
+#   value       = module.eks_cluster.gitops_metadata
+#   sensitive   = true
+# }
