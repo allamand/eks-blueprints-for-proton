@@ -67,15 +67,7 @@ infrastructure:
 
           # Connect to EKS
           - aws sts get-caller-identity
-          - aws eks --region ${AWS_REGION} update-kubeconfig --name ${PROTON_ENV}-${PROTON_SVC_INSTANCE}
-          # 1. first remove applications protections
-          - kubectl delete pdb --all -A
-          #- kubectl delete provisioners.karpenter.sh --all
-          # 2. Then remove ArgoCD applications
-          - kubectl delete applications -n argocd workloads
-          - kubectl delete applications -n argocd ecsdemo
+          - aws eks --region ${AWS_REGION} update-kubeconfig --name ${PROTON_ENV}-${PROTON_SVC_INSTANCE} || true
 
-          # destroy environment
-          - terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.eks_cluster.module.kubernetes_addons"
-          - terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve -target="module.eks_cluster.module.eks"
-          - terraform destroy -var-file=proton-inputs.json -var="aws_region=${AWS_REGION}" -auto-approve
+          # Destroy apps and services
+          - chmod +x ./tear-down-applications.sh && chmod +x ./tear-down.sh && ./tear-down.sh
