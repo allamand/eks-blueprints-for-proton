@@ -1,7 +1,7 @@
 {
   "*": {
     "role-old": "arn:aws:iam::382076407153:role/GitHubAppRunner-Terraform",
-    "role-sa": "arn:aws:iam::283311363519:role/AWSProtonCodeBuildProvisioning",
+    "role-prod": "arn:aws:iam::283311363519:role/AWSProtonCodeBuildProvisioning",
     "role": "arn:aws:iam::382076407153:role/AWSProtonCodeBuildProvisioning",
     "region": "eu-west-1",
     "state_bucket": "aws-proton-terraform-bucket-382076407153"

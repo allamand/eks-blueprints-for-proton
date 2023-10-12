@@ -11,10 +11,13 @@ check:
 
 applications != kubectl get applications -n argocd -o json | jq ".items[].metadata.name" -r | grep -v addons
 
-clean:
+clean-apps: 	
 	@echo delete $(applications)
 	@kubectl delete applications -n argocd workloads
 	@kubectl delete applications -n argocd ecsdemo	
+
+clean:
+	@make clean-apps
 	@make destroy clean-eks
 
 clean-finalizers:

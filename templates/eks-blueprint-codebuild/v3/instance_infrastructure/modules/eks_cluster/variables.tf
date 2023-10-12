@@ -10,6 +10,12 @@ variable "environment_name" {
   default     = "eks-blueprint"
 }
 
+variable "ingress_type" {
+  type        = string
+  description = "Type of ingress to uses (alb | nginx | ...). this parameter will be sent to arocd via gitops bridge"
+  default     = "alb"
+}
+
 variable "hosted_zone_name" {
   type        = string
   description = "Route53 domain for the cluster."

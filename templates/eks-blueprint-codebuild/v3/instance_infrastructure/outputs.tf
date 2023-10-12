@@ -15,7 +15,7 @@ output "configure_kubectl" {
 
 
 output "eks_blueprints_platform_teams_configure_kubectl" {
-  description = "Configure kubectl Platform Team: make sure you're logged in with the correct AWS profile and run the following command to update your kubeconfig"
+  description = "Configure kubectl for Platform Team: make sure you're logged in with the correct AWS profile and run the following command to update your kubeconfig"
   value       = module.eks_cluster.eks_blueprints_platform_teams_configure_kubectl
 }
 

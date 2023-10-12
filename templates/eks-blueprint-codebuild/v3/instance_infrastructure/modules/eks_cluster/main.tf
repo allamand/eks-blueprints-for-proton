@@ -7,13 +7,14 @@ provider "aws" {
 locals {
   environment = var.environment_name
   service     = var.service_name
+  region      = var.aws_region
 
   env  = local.service
   name = "${local.environment}-${local.service}"
 
   # Mapping
   hosted_zone_name                            = var.hosted_zone_name
-  ingress_type                                = "alb" #var.ingress_type
+  ingress_type                                = var.ingress_type
   aws_secret_manager_git_private_ssh_key_name = var.aws_secret_manager_git_private_ssh_key_name
   cluster_version                             = var.cluster_version
   argocd_secret_manager_name                  = var.argocd_secret_manager_name_suffix
@@ -86,13 +87,13 @@ locals {
   #----------------------------------------------------------------
 
   addons_metadata = merge(
-    module.eks_blueprints_addons.gitops_metadata, # eks blueprints addons automatically expose metadatas
+    try(module.eks_blueprints_addons.gitops_metadata, {}), # eks blueprints addons automatically expose metadatas
     {
       aws_cluster_name = module.eks.cluster_name
-      aws_region       = var.aws_region
+      aws_region       = local.region
       aws_account_id   = data.aws_caller_identity.current.account_id
       aws_vpc_id       = data.aws_vpc.vpc.id
-      cluster_endpoint = module.eks.cluster_endpoint
+      cluster_endpoint = try(module.eks.cluster_endpoint, {})
       env              = local.env
     },
     {
@@ -124,7 +125,7 @@ locals {
   # Manifests for bootstraping the cluster for addons & workloads
   #---------------------------------------------------------------
 
-  argocd_bootstrap_app_of_apps = {
+  argocd_apps = {
     addons    = file("${path.module}/../../bootstrap/addons.yaml")
     workloads = file("${path.module}/../../bootstrap/workloads.yaml")
   }
@@ -134,6 +135,7 @@ locals {
     Blueprint  = local.name
     GithubRepo = "github.com/aws-ia/terraform-aws-eks-blueprints"
   }
+
 }
 
 # Find the user currently in use by AWS
@@ -176,11 +178,14 @@ resource "aws_ec2_tag" "public_subnets" {
   value       = "shared"
 }
 
-# Create Sub HostedZone four our deployment
+# Get HostedZone four our deployment
 data "aws_route53_zone" "sub" {
   name = "${local.environment}.${local.hosted_zone_name}"
 }
 
+################################################################################
+# AWS Secret Manager for argocd password
+################################################################################
 
 data "aws_secretsmanager_secret" "argocd" {
   name = "${local.argocd_secret_manager_name}.${local.environment}"
@@ -190,10 +195,9 @@ data "aws_secretsmanager_secret_version" "admin_password_version" {
   secret_id = data.aws_secretsmanager_secret.argocd.id
 }
 
-# data "aws_ecrpublic_authorization_token" "token" {
-#   provider = aws.virginia
-# }
-
+################################################################################
+# EKS Cluster
+################################################################################
 #tfsec:ignore:aws-eks-enable-control-plane-logging
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
@@ -560,7 +564,24 @@ module "gitops_bridge_bootstrap" {
     metadata     = local.addons_metadata
     addons       = local.addons
   }
-  apps       = local.argocd_bootstrap_app_of_apps
+  apps = local.argocd_apps
+
+  argocd = {
+    create_namespace = false
+    set = [
+      {
+        name  = "server.service.type"
+        value = "LoadBalancer"
+      }
+    ]
+    set_sensitive = [
+      {
+        name  = "configs.secret.argocdServerAdminPassword"
+        value = bcrypt(data.aws_secretsmanager_secret_version.admin_password_version.secret_string)
+      }
+    ]
+  }
+
   depends_on = [kubernetes_secret.git_secrets]
 }
 
