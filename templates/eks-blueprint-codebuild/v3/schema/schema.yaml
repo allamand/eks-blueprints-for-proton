@@ -115,7 +115,7 @@ schema:
             enable_karpenter                             = false
             enable_velero                                = false
             enable_aws_gateway_api_controller            = false
-            enable_aws_ebs_csi_resources                 = false # generate gp2 and gp3 storage classes for ebs-csi
+            enable_aws_ebs_csi_resources                 = false
             enable_aws_secrets_store_csi_driver_provider = false
             enable_ack_apigatewayv2                      = false
             enable_ack_dynamodb                          = false
@@ -138,7 +138,7 @@ schema:
             enable_prometheus_adapter                    = false
             enable_secrets_store_csi_driver              = false
             enable_vpa                                   = false
-            enable_foo                                   = false # you can add any addon here, make sure to update the gitops repo with the corresponding application set
+            enable_foo                                   = false
 
           }
 
