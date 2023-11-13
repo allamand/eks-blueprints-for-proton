@@ -17,7 +17,6 @@ schema:
         - gitops_workloads_repo
         - gitops_workloads_path
         - gitops_workloads_revision
-        - addons
       properties:
         eks_admin_role_name:
           title: 'EKS Admin Additional Role Name'
