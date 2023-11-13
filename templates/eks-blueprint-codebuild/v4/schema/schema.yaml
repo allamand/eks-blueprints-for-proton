@@ -103,14 +103,14 @@ schema:
           title: 'Kubernetes Add-Ons'
           type: object
           default : {
-            enable_cert_manager                          = false
+            enable_cert_manager                          = true
             enable_aws_efs_csi_driver                    = false
             enable_aws_fsx_csi_driver                    = false
             enable_aws_cloudwatch_metrics                = false
             enable_aws_privateca_issuer                  = false
             enable_cluster_autoscaler                    = false
             enable_external_dns                          = false
-            enable_external_secrets                      = false
+            enable_external_secrets                      = true
             enable_aws_load_balancer_controller          = false
             enable_aws_for_fluentbit                      = false
             enable_aws_node_termination_handler          = false
