@@ -57,6 +57,7 @@ module "eks_cluster" {
   gitops_workloads_revision = var.service_instance.inputs.gitops_workloads_revision
   gitops_workloads_path     = var.service_instance.inputs.gitops_workloads_path
 
+  addons = var.service_instance.addons
 
 
 

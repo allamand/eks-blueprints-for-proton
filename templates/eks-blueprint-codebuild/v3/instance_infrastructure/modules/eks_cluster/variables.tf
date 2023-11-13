@@ -119,3 +119,8 @@ variable "route53_weight" {
   type        = string
   default     = "100"
 }
+
+variable "addons" {
+  description = "Kubernetes addons"
+  type        = any
+}

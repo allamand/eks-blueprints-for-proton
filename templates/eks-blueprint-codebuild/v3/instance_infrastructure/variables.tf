@@ -29,6 +29,7 @@ variable "service_instance" {
   type = object({
     name   = string
     inputs = map(string)
+    addons = map(string)
   })
 }
 
