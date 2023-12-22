@@ -53,8 +53,8 @@ locals {
 
   addon_application = {
     path                = "chart"
-    repo_url            = "${var.service_instance.inputs.addon_repo_url}"
-    ssh_key_secret_name = "${var.service_instance.inputs.workload_repo_secret}"
+    repo_url            = var.service_instance.inputs.addon_repo_url
+    ssh_key_secret_name = var.service_instance.inputs.workload_repo_secret
     add_on_application  = true
   }
 
@@ -63,10 +63,10 @@ locals {
   #---------------------------------------------------------------
 
   workload_application = {
-    path                = "${var.service_instance.inputs.workload_repo_path}" # <-- we could also to blue/green on the workload repo path like: envs/dev-blue / envs/dev-green
-    repo_url            = "${var.service_instance.inputs.workload_repo_url}"
-    target_revision     = "${var.service_instance.inputs.workload_repo_revision}"
-    ssh_key_secret_name = "${var.service_instance.inputs.workload_repo_secret}"
+    path                = var.service_instance.inputs.workload_repo_path # <-- we could also to blue/green on the workload repo path like: envs/dev-blue / envs/dev-gre
+    repo_url            = var.service_instance.inputs.workload_repo_url
+    target_revision     = var.service_instance.inputs.workload_repo_revision
+    ssh_key_secret_name = var.service_instance.inputs.workload_repo_secret
     add_on_application  = false
     values = {
       labels = {
@@ -75,8 +75,8 @@ locals {
       }
       spec = {
         source = {
-          repoURL        = "${var.service_instance.inputs.workload_repo_url}"
-          targetRevision = "${var.service_instance.inputs.workload_repo_revision}"
+          repoURL        = var.service_instance.inputs.workload_repo_url
+          targetRevision = var.service_instance.inputs.workload_repo_revision
         }
         blueprint                = "terraform"
         clusterName              = local.name
@@ -98,9 +98,9 @@ locals {
 
   ecsdemo_application = {
     path                = "multi-repo/argo-app-of-apps/dev"
-    repo_url            = "${var.service_instance.inputs.workload_repo_url}"
-    target_revision     = "${var.service_instance.inputs.workload_repo_revision}"
-    ssh_key_secret_name = "${var.service_instance.inputs.workload_repo_secret}"
+    repo_url            = var.service_instance.inputs.workload_repo_url
+    target_revision     = var.service_instance.inputs.workload_repo_revision
+    ssh_key_secret_name = var.service_instance.inputs.workload_repo_secret
     add_on_application  = false
     values = {
       spec = {

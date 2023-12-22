@@ -36,6 +36,8 @@ locals {
 
   eks_cluster_domain = "${local.environment}.${local.hosted_zone_name}" # for external-dns
 
+  lattice_default_service_network = "app-services-gw"
+
   tag_val_vpc            = local.environment
   tag_val_public_subnet  = "${local.environment}-public-"
   tag_val_private_subnet = "${local.environment}-private-"
@@ -127,12 +129,14 @@ locals {
       addons_repo_revision = local.gitops_addons_revision
     },
     {
-      eks_cluster_domain         = local.eks_cluster_domain
-      external_dns_policy        = "sync"
-      ingress_type               = local.ingress_type
-      argocd_route53_weight      = local.argocd_route53_weight
-      route53_weight             = local.route53_weight
-      ecsfrontend_route53_weight = local.ecsfrontend_route53_weight
+      eks_cluster_domain              = local.eks_cluster_domain
+      external_dns_policy             = "sync"
+      dns_private_domain              = "vpc-lattice-custom-domain.io"
+      lattice_default_service_network = local.lattice_default_service_network
+      ingress_type                    = local.ingress_type
+      argocd_route53_weight           = local.argocd_route53_weight
+      route53_weight                  = local.route53_weight
+      ecsfrontend_route53_weight      = local.ecsfrontend_route53_weight
       #target_group_arn = local.service == "blue" ? data.aws_lb_target_group.tg_blue.arn : data.aws_lb_target_group.tg_green.arn # <-- Add this line
       #      external_lb_dns = data.aws_lb.alb.dns_name
     }
@@ -229,6 +233,18 @@ module "eks" {
 
   #we uses only 1 security group to allow connection with Fargate, MNG, and Karpenter nodes
   create_node_security_group = false
+
+  # cluster_security_group_additional_rules = {
+  #   ingress_alb_security_group_id = {
+  #     description              = "Ingress from environment ALB security group"
+  #     protocol                 = "tcp"
+  #     from_port                = 80
+  #     to_port                  = 80
+  #     type                     = "ingress"
+  #     source_security_group_id = data.aws_security_group.alb_sg[0].id
+  #   }
+  # }
+
   eks_managed_node_groups = {
     initial = {
       node_group_name = local.node_group_name
@@ -273,6 +289,34 @@ module "eks" {
 data "aws_iam_role" "eks_admin_role_name" {
   count = local.eks_admin_role_name != "" ? 1 : 0
   name  = local.eks_admin_role_name
+}
+
+################################################################################
+# Allow flow from VPC Lattice to EKS cluster
+################################################################################
+
+# Lookup VPC Lattice prefix list IDs
+data "aws_ec2_managed_prefix_list" "vpc_lattice" {
+  name = "com.amazonaws.${local.region}.vpc-lattice"
+}
+
+data "aws_ec2_managed_prefix_list" "vpc_lattice_ipv6" {
+  name = "com.amazonaws.${local.region}.ipv6.vpc-lattice"
+}
+
+# Authorize ingress from prefix lists to EKS cluster security group
+resource "aws_security_group_rule" "vpc_lattice_ingress" {
+  security_group_id = module.eks.cluster_primary_security_group_id
+
+  prefix_list_ids = [
+    data.aws_ec2_managed_prefix_list.vpc_lattice.id,
+    data.aws_ec2_managed_prefix_list.vpc_lattice_ipv6.id
+  ]
+
+  type      = "ingress"
+  from_port = 0
+  to_port   = 0
+  protocol  = "-1"
 }
 
 ################################################################################
@@ -606,8 +650,9 @@ module "gitops_bridge_bootstrap" {
 # EKS Blueprints Addons
 ################################################################################
 module "eks_blueprints_addons" {
-  source  = "aws-ia/eks-blueprints-addons/aws"
-  version = "~> 1.11.0" #ensure to update this to the latest/desired version
+  #source  = "aws-ia/eks-blueprints-addons/aws"
+  #version = "~> 1.11.0" #ensure to update this to the latest/desired version
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints-addons?ref=gw_v1"
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
@@ -626,6 +671,112 @@ module "eks_blueprints_addons" {
     # }
     coredns = {
       most_recent = true
+      configuration_values = jsonencode({
+        replicaCount = 4
+        tolerations = [
+          {
+            key      = "dedicated",
+            operator = "Equal",
+            effect   = "NoSchedule",
+            value    = "orchestration-seb"
+          }
+        ]
+
+        topologySpreadConstraints = [
+          {
+            maxSkew           = 1
+            topologyKey       = "topology.kubernetes.io/zone"
+            whenUnsatisfiable = "ScheduleAnyway"
+            labelSelector = {
+              matchLabels = {
+                k8s-app : "kube-dns"
+              }
+            }
+          }
+        ]
+
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [
+                {
+                  matchExpressions = [
+                    {
+                      key      = "kubernetes.io/os"
+                      operator = "In"
+                      values   = ["linux"]
+                    },
+                    {
+                      key      = "kubernetes.io/arch"
+                      operator = "In"
+                      values   = ["amd64"]
+                    }
+                  ]
+              }]
+            }
+          }
+
+          podAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = [{
+              labelSelector = {
+                matchExpressions = [
+                  {
+                    key      = "k8s-app"
+                    operator = "NotIn"
+                    values   = ["kube-dns"]
+                  }
+                ]
+              }
+              topologyKey = "kubernetes.io/hostname"
+              }
+            ]
+          }
+
+          podAntiAffinity = {
+            preferredDuringSchedulingIgnoredDuringExecution = [{
+              podAffinityTerm = {
+                labelSelector = {
+                  matchExpressions = [
+                    {
+                      key      = "k8s-app"
+                      operator = "In"
+                      values   = ["kube-dns"]
+                    }
+                  ]
+                }
+                topologyKey = "kubernetes.io/hostname"
+              }
+              weight = 100
+              }
+            ]
+
+            requiredDuringSchedulingIgnoredDuringExecution = [{
+              labelSelector = {
+                matchExpressions = [
+                  {
+                    key      = "k8s-app"
+                    operator = "In"
+                    values   = ["kube-dns"]
+                  }
+                ]
+              }
+              topologyKey = "kubernetes.io/hostname"
+              }
+            ]
+          }
+
+        }
+
+        resources = {
+          limits = {
+            memory = "170Mi"
+          }
+          requests = {
+            cpu    = "250m"
+            memory = "70Mi"
+          }
+        }
+      })
     }
     vpc-cni = {
       # Specify the VPC CNI addon should be deployed before compute to ensure
