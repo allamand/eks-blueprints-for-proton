@@ -38,9 +38,10 @@ module "eks_cluster" {
   route53_weight             = var.service_instance.inputs.route53_weight
   ecsfrontend_route53_weight = var.service_instance.inputs.ecsfrontend_route53_weight
 
-  environment_name    = var.environment.name
-  hosted_zone_name    = var.environment.outputs.hosted_zone_name
-  eks_admin_role_name = var.service_instance.inputs.eks_admin_role_name
+  environment_name             = var.environment.name
+  external_hosted_zone_name    = var.environment.outputs.hosted_zone_name
+  internal_hosted_zone_name    = "vpc-lattice-custom-domain.io"
+  eks_admin_role_name          = var.service_instance.inputs.eks_admin_role_name
 
   aws_secret_manager_git_private_ssh_key_name = var.service_instance.inputs.aws_secret_manager_git_private_ssh_key_name
   argocd_secret_manager_name_suffix           = try(var.service_instance.inputs.argocd_secret_manager_name_suffix, "argocd-admin-secret")

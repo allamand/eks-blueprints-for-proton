@@ -13,7 +13,8 @@ locals {
   name = "${local.environment}-${local.service}"
 
   # Mapping
-  hosted_zone_name                            = var.hosted_zone_name
+  external_hosted_zone_name                            = var.external_hosted_zone_name
+  internal_hosted_zone_name                            = var.internal_hosted_zone_name
   ingress_type                                = var.ingress_type
   aws_secret_manager_git_private_ssh_key_name = var.aws_secret_manager_git_private_ssh_key_name
   cluster_version                             = var.cluster_version
@@ -34,7 +35,9 @@ locals {
   route53_weight             = var.route53_weight
   ecsfrontend_route53_weight = var.ecsfrontend_route53_weight
 
-  eks_cluster_domain = "${local.environment}.${local.hosted_zone_name}" # for external-dns
+  eks_cluster_domain = "${local.environment}.${local.external_hosted_zone_name}" # for external-dns
+
+  lattice_default_service_network = "app-services-gw"
 
   tag_val_vpc            = local.environment
   tag_val_public_subnet  = "${local.environment}-public-"
@@ -105,6 +108,7 @@ locals {
 
   addons_metadata = merge(
     try(module.eks_blueprints_addons.gitops_metadata, {}), # eks blueprints addons automatically expose metadatas
+    try(module.eks_ack_addons.gitops_metadata, {}),        # eks blueprints ack addons automatically expose metadatas
     {
       aws_cluster_name = module.eks.cluster_name
       aws_region       = local.region
@@ -127,12 +131,14 @@ locals {
       addons_repo_revision = local.gitops_addons_revision
     },
     {
-      eks_cluster_domain         = local.eks_cluster_domain
-      external_dns_policy        = "sync"
-      ingress_type               = local.ingress_type
-      argocd_route53_weight      = local.argocd_route53_weight
-      route53_weight             = local.route53_weight
-      ecsfrontend_route53_weight = local.ecsfrontend_route53_weight
+      eks_cluster_domain              = local.eks_cluster_domain
+      external_dns_policy             = "sync"
+      dns_private_domain              = "vpc-lattice-custom-domain.io"
+      lattice_default_service_network = local.lattice_default_service_network
+      ingress_type                    = local.ingress_type
+      argocd_route53_weight           = local.argocd_route53_weight
+      route53_weight                  = local.route53_weight
+      ecsfrontend_route53_weight      = local.ecsfrontend_route53_weight
       #target_group_arn = local.service == "blue" ? data.aws_lb_target_group.tg_blue.arn : data.aws_lb_target_group.tg_green.arn # <-- Add this line
       #      external_lb_dns = data.aws_lb.alb.dns_name
     }
@@ -195,9 +201,16 @@ resource "aws_ec2_tag" "public_subnets" {
   value       = "shared"
 }
 
+################################################################################
+# External-DNS - retrieve Hosted Zone
+################################################################################
+data "aws_route53_zone" "internal" {
+  name         = local.internal_hosted_zone_name
+  private_zone = true
+}
 # Get HostedZone four our deployment
-data "aws_route53_zone" "sub" {
-  name = "${local.environment}.${local.hosted_zone_name}"
+data "aws_route53_zone" "external" {
+  name = "${local.environment}.${local.external_hosted_zone_name}"
 }
 
 ################################################################################
@@ -229,6 +242,18 @@ module "eks" {
 
   #we uses only 1 security group to allow connection with Fargate, MNG, and Karpenter nodes
   create_node_security_group = false
+
+  # cluster_security_group_additional_rules = {
+  #   ingress_alb_security_group_id = {
+  #     description              = "Ingress from environment ALB security group"
+  #     protocol                 = "tcp"
+  #     from_port                = 80
+  #     to_port                  = 80
+  #     type                     = "ingress"
+  #     source_security_group_id = data.aws_security_group.alb_sg[0].id
+  #   }
+  # }
+
   eks_managed_node_groups = {
     initial = {
       node_group_name = local.node_group_name
@@ -273,6 +298,34 @@ module "eks" {
 data "aws_iam_role" "eks_admin_role_name" {
   count = local.eks_admin_role_name != "" ? 1 : 0
   name  = local.eks_admin_role_name
+}
+
+################################################################################
+# Allow flow from VPC Lattice to EKS cluster
+################################################################################
+
+# Lookup VPC Lattice prefix list IDs
+data "aws_ec2_managed_prefix_list" "vpc_lattice" {
+  name = "com.amazonaws.${local.region}.vpc-lattice"
+}
+
+data "aws_ec2_managed_prefix_list" "vpc_lattice_ipv6" {
+  name = "com.amazonaws.${local.region}.ipv6.vpc-lattice"
+}
+
+# Authorize ingress from prefix lists to EKS cluster security group
+resource "aws_security_group_rule" "vpc_lattice_ingress" {
+  security_group_id = module.eks.cluster_primary_security_group_id
+
+  prefix_list_ids = [
+    data.aws_ec2_managed_prefix_list.vpc_lattice.id,
+    data.aws_ec2_managed_prefix_list.vpc_lattice_ipv6.id
+  ]
+
+  type      = "ingress"
+  from_port = 0
+  to_port   = 0
+  protocol  = "-1"
 }
 
 ################################################################################
@@ -606,8 +659,9 @@ module "gitops_bridge_bootstrap" {
 # EKS Blueprints Addons
 ################################################################################
 module "eks_blueprints_addons" {
-  source  = "aws-ia/eks-blueprints-addons/aws"
-  version = "~> 1.11.0" #ensure to update this to the latest/desired version
+  #source  = "aws-ia/eks-blueprints-addons/aws"
+  #version = "~> 1.11.0" #ensure to update this to the latest/desired version
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints-addons?ref=gw_v1"
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
@@ -626,6 +680,112 @@ module "eks_blueprints_addons" {
     # }
     coredns = {
       most_recent = true
+      configuration_values = jsonencode({
+        replicaCount = 4
+        tolerations = [
+          {
+            key      = "dedicated",
+            operator = "Equal",
+            effect   = "NoSchedule",
+            value    = "orchestration-seb"
+          }
+        ]
+
+        topologySpreadConstraints = [
+          {
+            maxSkew           = 1
+            topologyKey       = "topology.kubernetes.io/zone"
+            whenUnsatisfiable = "ScheduleAnyway"
+            labelSelector = {
+              matchLabels = {
+                k8s-app : "kube-dns"
+              }
+            }
+          }
+        ]
+
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [
+                {
+                  matchExpressions = [
+                    {
+                      key      = "kubernetes.io/os"
+                      operator = "In"
+                      values   = ["linux"]
+                    },
+                    {
+                      key      = "kubernetes.io/arch"
+                      operator = "In"
+                      values   = ["amd64"]
+                    }
+                  ]
+              }]
+            }
+          }
+
+          podAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = [{
+              labelSelector = {
+                matchExpressions = [
+                  {
+                    key      = "k8s-app"
+                    operator = "NotIn"
+                    values   = ["kube-dns"]
+                  }
+                ]
+              }
+              topologyKey = "kubernetes.io/hostname"
+              }
+            ]
+          }
+
+          podAntiAffinity = {
+            preferredDuringSchedulingIgnoredDuringExecution = [{
+              podAffinityTerm = {
+                labelSelector = {
+                  matchExpressions = [
+                    {
+                      key      = "k8s-app"
+                      operator = "In"
+                      values   = ["kube-dns"]
+                    }
+                  ]
+                }
+                topologyKey = "kubernetes.io/hostname"
+              }
+              weight = 100
+              }
+            ]
+
+            requiredDuringSchedulingIgnoredDuringExecution = [{
+              labelSelector = {
+                matchExpressions = [
+                  {
+                    key      = "k8s-app"
+                    operator = "In"
+                    values   = ["kube-dns"]
+                  }
+                ]
+              }
+              topologyKey = "kubernetes.io/hostname"
+              }
+            ]
+          }
+
+        }
+
+        resources = {
+          limits = {
+            memory = "170Mi"
+          }
+          requests = {
+            cpu    = "250m"
+            memory = "70Mi"
+          }
+        }
+      })
     }
     vpc-cni = {
       # Specify the VPC CNI addon should be deployed before compute to ensure
@@ -646,6 +806,9 @@ module "eks_blueprints_addons" {
     kube-proxy = {
       most_recent = true
     }
+    eks-pod-identity-agent= {
+      most_recent = true
+    }
   }
 
   # EKS Blueprints Addons
@@ -656,7 +819,7 @@ module "eks_blueprints_addons" {
   enable_aws_privateca_issuer         = try(local.aws_addons.enable_aws_privateca_issuer, false)
   enable_cluster_autoscaler           = try(local.aws_addons.enable_cluster_autoscaler, false)
   enable_external_dns                 = try(local.aws_addons.enable_external_dns, false) # TODO: put a condition here
-  external_dns_route53_zone_arns      = [data.aws_route53_zone.sub.arn]
+  external_dns_route53_zone_arns      = try([data.aws_route53_zone.external.arn,data.aws_route53_zone.internal.arn], [])
   enable_external_secrets             = try(local.aws_addons.enable_external_secrets, false)
   enable_aws_load_balancer_controller = try(local.aws_addons.enable_aws_load_balancer_controller, false)
   aws_load_balancer_controller = {
@@ -696,6 +859,30 @@ module "ebs_csi_driver_irsa" {
       namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
     }
   }
+
+  tags = local.tags
+}
+
+################################################################################
+# ACK Addons
+################################################################################
+
+module "eks_ack_addons" {
+  #source = "aws-ia/eks-ack-addons/aws"
+  #version = "2.1.0"
+  source = "github.com/allamand/terraform-aws-eks-ack-addons?ref=ack_iam"
+
+
+  # Cluster Info
+  cluster_name      = module.eks.cluster_name
+  cluster_endpoint  = module.eks.cluster_endpoint
+  oidc_provider_arn = module.eks.oidc_provider_arn
+
+  create_kubernetes_resources = false
+
+  # Controllers to enable
+  enable_iam         = try(local.aws_addons.enable_ack_iam, false)
+  enable_eventbridge = try(local.aws_addons.enable_ack_eventbridge, false)
 
   tags = local.tags
 }

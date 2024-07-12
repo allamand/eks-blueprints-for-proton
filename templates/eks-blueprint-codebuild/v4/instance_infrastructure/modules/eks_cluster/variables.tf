@@ -16,9 +16,15 @@ variable "ingress_type" {
   default     = "alb"
 }
 
-variable "hosted_zone_name" {
+variable "external_hosted_zone_name" {
   type        = string
-  description = "Route53 domain for the cluster."
+  description = "Public Route53 domain for the cluster."
+  default     = ""
+}
+
+variable "internal_hosted_zone_name" {
+  type        = string
+  description = "Private Route53 domain for the cluster."
   default     = ""
 }
 
